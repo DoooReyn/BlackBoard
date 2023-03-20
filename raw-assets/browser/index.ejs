@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="initial-scale=1, maximum-scale=1" name="viewport">
+    <link rel="icon" href="favicon.ico">
+    <title>Black Board</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #pixi-content {
+            flex-grow: 1;
+        }
+
+        #black-board {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            border: 2px black solid;
+        }
+    </style>
+</head>
+<body>
+<div id="pixi-content">
+    <canvas id="black-board" width="960" height="640"></canvas>
+</div>
+</body>
+</html>
