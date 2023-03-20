@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    // Settings for the compiler
+    "outDir": "./deploy/build/",
+    "sourceMap": true,
+    "target": "es6",
+    "module": "es2020",
+    "allowJs": true,
+    // Rules for your code
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "strictNullChecks": false,
+    // Settings for linking source files
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true
+  },
+  "ts-node": {
+    "esm": true
+  },
+  "lib": [
+    "DOM",
+    "ES2020"
+  ],
+  // Folder for your code
+  "include": [
+    "./runtime/sources/engine/**/*",
+    "./runtime/sources/main/**/*"
+  ]
+}
