@@ -9,7 +9,11 @@ interface IListener {
  * 事件订阅者
  */
 export class Subscriber {
-    private _listeners : IListener[] = [];
+    private _listeners : IListener[];
+
+    constructor() {
+        this._listeners = [];
+    }
 
     private _indexOf( event : string, listener : IEventListener ) {
         for ( let i = 0; i < this._listeners.length; i++ ) {
