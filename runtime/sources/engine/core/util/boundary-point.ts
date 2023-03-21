@@ -134,7 +134,7 @@ export class Boundary<T> {
     }
 
     update() {
-        if ( this._lovely.lovely ) {
+        if ( this._lovely.angry ) {
             this._lovely.treat();
             this.cb.call( this.scope );
         }

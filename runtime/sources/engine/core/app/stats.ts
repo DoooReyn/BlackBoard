@@ -31,10 +31,7 @@ export class Stats extends Container implements IStats {
 
     private static _createText() {
         return new Text( '', {
-            fontSize: 14,
-            fill: 0xf00,
-            fontFamily: 'Monaco',
-            fontWeight: 'bold',
+            fontSize: 14, fill: 0xf00, fontFamily: 'Monaco', fontWeight: 'bold',
         } );
     }
 
@@ -48,7 +45,7 @@ export class Stats extends Container implements IStats {
             };
         }
 
-        [ this._fpTxt, this._dcTxt, this._tcTxt ].forEach( ( v, i ) => v.pivot.y = -i * 18 );
+        [ this._fpTxt, this._dcTxt, this._tcTxt ].forEach( ( v, i ) => v.y = i * 18 );
     }
 
     public drawTarget( o : DisplayObject ) {

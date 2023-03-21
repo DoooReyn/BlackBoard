@@ -5,7 +5,7 @@ export class Lovely {
         this._grumpy = 0;
     }
 
-    get lovely() {
+    get angry() {
         return this._grumpy > 0;
     }
 

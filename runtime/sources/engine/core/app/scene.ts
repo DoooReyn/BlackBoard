@@ -1,9 +1,9 @@
 import { SystemEvent } from '../../enum';
 import { IGame, IScene } from '../../interface';
-import { Box } from '../box';
+import { SizeBox } from '../box';
 import { EventBus } from '../util';
 
-export class Scene extends Box implements IScene {
+export class Scene extends SizeBox implements IScene {
     context : IGame;
     private _tmo : any;
 
@@ -12,44 +12,74 @@ export class Scene extends Box implements IScene {
             width: context.view.screen.width,
             height: context.view.screen.height,
             anchorX: 0.5,
-            anchorY: 0.5,
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            anchorY: 0.5, // for test
+            backgroundColor: 0xffffff,
+            backgroundAlpha: 0.5
         } );
 
+        this._tmo = null;
         this.context = context;
-        this.resize( this.context.view.screen );
 
-        window.addEventListener( 'resize', this._onSizeChanged.bind( this ) );
+        window.addEventListener( 'resize', this._onWindowSizeChanged.bind( this ) );
         document.addEventListener( 'visibilitychange', () => {
             document.visibilityState === 'hidden' ? this.onexit() : this.onenter();
         } );
-        this._onSizeChanged();
     }
 
-    private _onSizeChanged() {
-        if ( !this._tmo ) {
+    protected override _onAdded() {
+        super._onAdded();
+
+        this._onWindowSizeChanged();
+    }
+
+    /**
+     * 屏幕尺寸变化回调
+     * @private
+     */
+    private _onWindowSizeChanged() {
+        if ( this._tmo === null ) {
             this._tmo = setTimeout( () => {
-                const { innerWidth: width, innerHeight: height } = window;
-                this.context.view.renderer.resize( width, height );
-                this.resize( width, height );
-                // this.pivot.set( width * 0.5, height * 0.5 );
-                EventBus.shared.emit( SystemEvent.Resize );
                 clearTimeout( this._tmo );
                 this._tmo = null;
-            }, 100 );
+                this.fitScreen();
+            }, 10 );
         }
     }
 
-    protected override _onBoundaryChanged() {
-        this.resize(this.context.view.screen);
+    /**
+     * 屏幕适配
+     * - 可以重写此方法做自定义的屏幕适配方案
+     * @public
+     */
+    public fitScreen() {
+        const { innerWidth: width, innerHeight: height } = window;
+        this.resize( width, height );
     }
 
+    public override resize( w : number, h : number ) {
+        this.context.view.renderer.resize( w, h );
+        super.resize( w, h );
+        this._refresh();
+        EventBus.shared.emit( SystemEvent.Resize );
+    }
+
+    /**
+     * As `Scene`, changing `anchor` will never work.
+     * @protected
+     */
     protected override _onAnchorChanged() {
-        this.x = this.context.view.screen.width * 0.5;
-        this.y = this.context.view.screen.height * 0.5;
+    }
+
+    /**
+     * Scene will keep at the center of screen
+     */
+    public override _refresh() {
+        const width = this._size.width * 0.5;
+        const height = this._size.height * 0.5;
+        this.transform.pivot.set( width, height );
+        this.transform.position.x = width;
+        this.transform.position.y = height;
+        this._draw();
     }
 
     protected onenter() {
@@ -58,11 +88,5 @@ export class Scene extends Box implements IScene {
 
     protected onexit() {
         EventBus.shared.emit( SystemEvent.Exit );
-    }
-
-    protected override onadded() {
-        super.onadded();
-
-        EventBus.shared.emit( SystemEvent.Resize );
     }
 }

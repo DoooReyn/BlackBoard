@@ -16,11 +16,47 @@ export function progressive<T extends any, K extends any>( fallbacks : K[], exec
     return undefined;
 }
 
-export function applyOptions( options : any, values : [ string, any ][] ) {
+/**
+ * 预填充
+ * @param options 选项
+ * @param {[string, any][]} values
+ */
+export function prefills( options : any, values : [ string, any ][] ) {
     values.forEach( v => {
         const [ key, val ] = v;
         if ( options[ key ] === undefined ) {
             options[ key ] = val;
         }
     } );
+}
+
+/**
+ * 深拷贝
+ * @param o 对象
+ * @returns {any}
+ */
+export function clone( o : any ) {
+    let buf : any;
+    if ( o instanceof Array ) {
+        buf = [];
+        let i = o.length;
+        while ( i-- ) {
+            buf[ i ] = clone( o[ i ] );
+        }
+        return buf;
+    } else if ( o instanceof Map ) {
+        buf = new Map();
+        o.forEach( ( v, k ) => {
+            buf.set( k, v );
+        } );
+        return buf;
+    } else if ( o instanceof Object ) {
+        buf = {};
+        for ( let k in o ) {
+            buf[ k ] = clone( o[ k ] );
+        }
+        return buf;
+    } else {
+        return o;
+    }
 }
