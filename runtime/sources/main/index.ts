@@ -1,3 +1,4 @@
+import { Sprite } from 'pixi.js';
 import { blackboard, Panel } from '../engine';
 
 const game = blackboard.instance( {
@@ -39,7 +40,10 @@ const panel2 = new Panel( {
     anchorX: 0.5
 } );
 panel.addChild( panel2 );
-// panel2.position.set( panel.size.width, panel.size.height );
+
+const bunny = Sprite.from("../../asset/image/bunny.png");
+bunny.anchor.set(0.5);
+panel.addChild(bunny);
 
 game.scene.addChild( panel );
 

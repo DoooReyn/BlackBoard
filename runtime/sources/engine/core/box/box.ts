@@ -4,6 +4,7 @@ import {
     applyOptions,
     Boundary,
     logger,
+    NextIDGenerator,
     Subscriber,
     VirtualSize
 } from '../util';
@@ -25,7 +26,6 @@ export abstract class Box extends Container {
     private _autoPositioning : boolean;
     public boundary : Boundary<this>;
     public anchor : ObservablePoint;
-    private static _uid : number = 0;
 
     protected constructor( options : IBoxOptions ) {
         super();
@@ -35,7 +35,7 @@ export abstract class Box extends Container {
             [ 'anchorY', 0.5 ],
         ] );
 
-        this.name = `${ this.constructor.name }.${ Box.getUid() }`;
+        this.name = NextIDGenerator.nextWithKey( this.constructor.name );
         this.subscriber = new Subscriber();
         this.size = new VirtualSize();
         this.on( 'added', this.onadded, this );
@@ -54,28 +54,6 @@ export abstract class Box extends Container {
         } );
 
         this.autoPositioning = true;
-    }
-
-    get isStretchWidth() {
-        return this.boundary.left.enabled && this.boundary.right.enabled;
-    }
-
-    get isStretchHeight() {
-        return this.boundary.top.enabled && this.boundary.bottom.enabled;
-    }
-
-    setStretchWidth() {
-        this.boundary.set( {
-            left: [ true, this.boundary.left.margin ],
-            right: [ true, this.boundary.right.margin ]
-        } );
-    }
-
-    setStretchHeight() {
-        this.boundary.set( {
-            top: [ true, this.boundary.top.margin ],
-            bottom: [ true, this.boundary.bottom.margin ]
-        } );
     }
 
     refreshBoundary() {
@@ -98,10 +76,6 @@ export abstract class Box extends Container {
         this.size.height = h;
     }
 
-    static getUid() {
-        return ++Box._uid;
-    }
-
     protected _onBoundaryChanged() {
         if ( !this.parent ) return;
 
@@ -117,12 +91,12 @@ export abstract class Box extends Container {
 
         const pw = width, ph = height;
         let stretch = false;
-        if ( this.isStretchWidth ) {
+        if ( this.boundary.isStretchWidth ) {
             width -= this.boundary.left.margin;
             width -= this.boundary.right.margin;
             stretch = true;
         }
-        if ( this.isStretchHeight ) {
+        if ( this.boundary.isStretchHeight ) {
             height -= this.boundary.top.margin;
             height -= this.boundary.bottom.margin;
             stretch = true;
