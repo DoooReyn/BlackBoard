@@ -7,3 +7,4 @@ export * from './helper';
 export * from './event-bus';
 export * from './boundary-point';
 export * from './next-id-generator';
+export * from './lovely';

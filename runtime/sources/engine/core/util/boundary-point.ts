@@ -1,4 +1,4 @@
-import { logger } from './logger';
+import { Lovely } from './lovely';
 
 export class BoundaryPoint {
     private _enabled : boolean;
@@ -56,14 +56,14 @@ export class Boundary<T> {
     private readonly _bottom : BoundaryPoint;
     private readonly _left : BoundaryPoint;
     private readonly _right : BoundaryPoint;
-    private _dirty : boolean;
+    private readonly _lovely : Lovely;
     public cb : ( this : T ) => any;
     public scope : any;
 
     constructor( cb : ( this : T ) => any, scope : T ) {
         this.cb = cb;
         this.scope = scope;
-        this._dirty = false;
+        this._lovely = new Lovely();
         this._left = new BoundaryPoint( false, 0 );
         this._top = new BoundaryPoint( false, 0 );
         this._right = new BoundaryPoint( false, 0 );
@@ -104,12 +104,12 @@ export class Boundary<T> {
 
     private _set( point : BoundaryPoint, enabled : boolean, margin : number ) {
         if ( point.enabled != enabled ) {
-            this._dirty = true;
+            this._lovely.trick();
             point.enabled = enabled;
         }
         if ( point.margin != margin ) {
             point.margin = margin;
-            this._dirty = true;
+            this._lovely.trick();
         }
     }
 
@@ -123,22 +123,19 @@ export class Boundary<T> {
 
     setStretchWidth() {
         this.set( {
-            left: [ true, this.left.margin ],
-            right: [ true, this.right.margin ]
+            left: [ true, this.left.margin ], right: [ true, this.right.margin ]
         } );
     }
 
     setStretchHeight() {
         this.set( {
-            top: [ true, this.top.margin ],
-            bottom: [ true, this.bottom.margin ]
+            top: [ true, this.top.margin ], bottom: [ true, this.bottom.margin ]
         } );
     }
 
-    refresh() {
-        if ( this._dirty ) {
-            logger.info( 'boundary dirty', this.get() );
-            this._dirty = false;
+    update() {
+        if ( this._lovely.lovely ) {
+            this._lovely.treat();
             this.cb.call( this.scope );
         }
     }
