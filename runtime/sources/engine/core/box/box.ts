@@ -1,5 +1,6 @@
 import { Container, ObservablePoint } from 'pixi.js';
 import { SystemEvent } from '../../enum';
+import { SizeLike } from '../../interface';
 import {
     applyOptions,
     Boundary,
@@ -12,7 +13,9 @@ import {
 export interface IBoxOptions {
     width : number;
     height : number;
+    // default is 0.5
     anchorX? : number;
+    // default is 0.5
     anchorY? : number;
     top? : number;
     bottom? : number;
@@ -22,7 +25,7 @@ export interface IBoxOptions {
 
 export abstract class Box extends Container {
     subscriber : Subscriber;
-    size : VirtualSize;
+    private _size : VirtualSize;
     private _autoPositioning : boolean;
     public boundary : Boundary<this>;
     public anchor : ObservablePoint;
@@ -37,13 +40,13 @@ export abstract class Box extends Container {
 
         this.name = NextIDGenerator.nextWithKey( this.constructor.name );
         this.subscriber = new Subscriber();
-        this.size = new VirtualSize();
+        this._size = new VirtualSize();
         this.on( 'added', this.onadded, this );
         this.on( 'removed', this.onremoved, this );
         this.on( 'destroyed', this.ondestroyed, this );
 
         this.anchor = new ObservablePoint( this._onAnchorChanged, this, options.anchorX, options.anchorY );
-        this.size.resize( options.width, options.height );
+        this._size.resize( options.width, options.height );
 
         this.boundary = new Boundary( this._onBoundaryChanged, this );
         this.boundary.set( {
@@ -56,24 +59,26 @@ export abstract class Box extends Container {
         this.autoPositioning = true;
     }
 
-    refreshBoundary() {
-        this.boundary.refresh();
-    }
-
     override get width() {
-        return this.size.width;
+        return this._size.width;
     }
 
     override get height() {
-        return this.size.height;
+        return this._size.height;
     }
 
     override set width( w : number ) {
-        this.size.width = w;
+        this._size.width = w;
     }
 
     override set height( h : number ) {
-        this.size.height = h;
+        this._size.height = h;
+    }
+
+    resize( w : number | SizeLike, h? : number ) {
+        this._size.resize( w, h );
+        this.width = this._size.width;
+        this.height = this._size.height;
     }
 
     protected _onBoundaryChanged() {
@@ -102,14 +107,14 @@ export abstract class Box extends Container {
             stretch = true;
         }
         if ( stretch ) {
-            this.size.resize( width, height );
+            this._size.resize( width, height );
             logger.info( this.name, 'boundary changed', this.parent.constructor.name, pw, width, ph, height );
         }
     }
 
     protected _onAnchorChanged() {
-        this.pivot.x = this.size.width * this.anchor.x;
-        this.pivot.y = this.size.height * this.anchor.y;
+        this.pivot.x = this._size.width * this.anchor.x;
+        this.pivot.y = this._size.height * this.anchor.y;
         if ( this.parent ) {
             this.x = this.parent.pivot.x;
             this.y = this.parent.pivot.y;
@@ -142,7 +147,7 @@ export abstract class Box extends Container {
     protected ondestroyed() {
         this.subscriber.unsubscribeAll();
         this.subscriber = null;
-        this.size = null;
+        this._size = null;
     }
 
     protected onresize() {

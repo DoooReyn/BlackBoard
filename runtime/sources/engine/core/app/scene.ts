@@ -20,7 +20,7 @@ export class Scene extends Box implements IScene {
         } );
 
         this.context = context;
-        this.size.resize( this.context.view.screen );
+        this.resize( this.context.view.screen );
 
         window.addEventListener( 'resize', this._onSizeChanged.bind( this ) );
         document.addEventListener( 'visibilitychange', () => {
@@ -34,7 +34,7 @@ export class Scene extends Box implements IScene {
             this._tmo = setTimeout( () => {
                 const { innerWidth: width, innerHeight: height } = window;
                 this.context.view.renderer.resize( width, height );
-                this.size.resize( width, height );
+                this.resize( width, height );
                 // this.pivot.set( width * 0.5, height * 0.5 );
                 EventBus.shared.emit( SystemEvent.Resize );
                 clearTimeout( this._tmo );
@@ -44,7 +44,7 @@ export class Scene extends Box implements IScene {
     }
 
     protected override _onBoundaryChanged() {
-        this.size.resize(this.context.view.screen);
+        this.resize(this.context.view.screen);
     }
 
     protected override _onAnchorChanged() {

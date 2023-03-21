@@ -59,7 +59,7 @@ export class Panel extends Box {
             alpha: 1
         } );
         this._sketch.beginFill( this._backgroundColor, this._backgroundAlpha );
-        this._sketch.drawRect( 0, 0, this.size.width, this.size.height );
+        this._sketch.drawRect( 0, 0, this.width, this.height );
         this._sketch.endFill();
 
         logger.info( this.name, 'draw' );
