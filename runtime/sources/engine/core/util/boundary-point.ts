@@ -113,6 +113,28 @@ export class Boundary<T> {
         }
     }
 
+    get isStretchWidth() {
+        return this.left.enabled && this.right.enabled;
+    }
+
+    get isStretchHeight() {
+        return this.top.enabled && this.bottom.enabled;
+    }
+
+    setStretchWidth() {
+        this.set( {
+            left: [ true, this.left.margin ],
+            right: [ true, this.right.margin ]
+        } );
+    }
+
+    setStretchHeight() {
+        this.set( {
+            top: [ true, this.top.margin ],
+            bottom: [ true, this.bottom.margin ]
+        } );
+    }
+
     refresh() {
         if ( this._dirty ) {
             logger.info( 'boundary dirty', this.get() );
