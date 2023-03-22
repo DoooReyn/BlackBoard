@@ -1,4 +1,4 @@
-import { SystemEvent } from '../../enum';
+import { NativeEvent, SystemEvent } from '../../enum';
 import { IGame, IScene } from '../../interface';
 import { SizeBox } from '../box';
 import { EventBus } from '../util';
@@ -19,17 +19,21 @@ export class Scene extends SizeBox implements IScene {
 
         this._tmo = null;
         this.context = context;
-
-        window.addEventListener( 'resize', this._onWindowSizeChanged.bind( this ) );
-        document.addEventListener( 'visibilitychange', () => {
-            document.visibilityState === 'hidden' ? this.onexit() : this.onenter();
-        } );
     }
 
     protected override _onAdded() {
         super._onAdded();
-
+        this.registerSystemEvent();
         this._onWindowSizeChanged();
+    }
+
+    /**
+     * 注册系统事件
+     * @protected
+     */
+    protected registerSystemEvent() {
+        window.addEventListener( NativeEvent.Resize, this._onWindowSizeChanged.bind( this ) );
+        document.addEventListener( NativeEvent.Visibility, this._onWindowVisibilityChanged.bind( this ) );
     }
 
     /**
@@ -44,6 +48,14 @@ export class Scene extends SizeBox implements IScene {
                 this.fitScreen();
             }, 10 );
         }
+    }
+
+    /**
+     * 屏幕可见性变化回调（前台/后台）
+     * @private
+     */
+    private _onWindowVisibilityChanged() {
+        document.visibilityState === 'hidden' ? this.onexit() : this.onenter();
     }
 
     /**
