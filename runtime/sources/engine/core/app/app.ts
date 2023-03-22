@@ -5,11 +5,7 @@ import { Scene } from './scene';
 import { Stats } from './stats';
 
 class Game implements IGame {
-    view : IView;
-    ticker : Ticker;
-    readonly scene : IScene;
-    readonly stats : IStats;
-    protected readonly _app: Application;
+    protected readonly _app : Application;
     private readonly _debug : boolean;
 
     constructor( options : IGameOptions ) {
@@ -20,7 +16,7 @@ class Game implements IGame {
         this._debug = debugMode || false;
 
         if ( !options.view && canvasFallbacks ) {
-            options.view = progressive<HTMLCanvasElement, string>( canvasFallbacks, document.querySelector.bind( document ) );
+            options.view = progressive<HTMLCanvasElement, string>( canvasFallbacks, document.querySelector, document );
         }
 
         const app = new Application( options );
@@ -34,10 +30,7 @@ class Game implements IGame {
         this.ticker.minFPS = options.minFPS;
 
         this.view = {
-            resolution: { width, height },
-            canvas: view,
-            renderer,
-            screen
+            resolution: { width, height }, canvas: view, renderer, screen,
         };
         this.stats = new Stats( this );
         this.scene = new Scene( this );
@@ -52,16 +45,20 @@ class Game implements IGame {
     get debug() {
         return this._debug;
     }
+
+    readonly scene : IScene;
+    readonly stats : IStats;
+    ticker : Ticker;
+    view : IView;
 }
 
 function BlackBoard() {
     let _instance : Game = null;
     return {
         instance( options? : IGameOptions ) {
-            if ( !_instance )
-                _instance = new Game( options );
+            if ( !_instance ) _instance = new Game( options );
             return _instance;
-        }
+        },
     };
 }
 
