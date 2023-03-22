@@ -3,12 +3,13 @@
  * @zh 渐进式递补执行并获取执行结果
  * @param {any[]} fallbacks
  * @param {(arg: any) => (any | undefined)} execute
+ * @param {any} ctx
  * @returns {any | undefined}
  */
-export function progressive<T extends any, K extends any>( fallbacks : K[], execute : ( arg : K ) => T | undefined ) : T | undefined {
+export function progressive<T extends any, K extends any>( fallbacks : K[], execute : ( arg : K ) => T | undefined, ctx : any ) : T | undefined {
     let result = undefined;
     for ( let i = 0; i < fallbacks.length; i++ ) {
-        result = execute( fallbacks[ i ] );
+        result = execute.call( ctx, fallbacks[ i ] );
         if ( result ) {
             return result as T;
         }
