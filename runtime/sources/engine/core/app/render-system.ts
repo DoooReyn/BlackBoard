@@ -1,6 +1,6 @@
 import { System } from './system';
 
-export class ViewSystem extends System {
+export class RenderSystem extends System {
     public get priority() : number {
         return 1;
     }
