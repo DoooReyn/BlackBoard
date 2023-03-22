@@ -1,6 +1,5 @@
 /**
- * @en execute progressively and return valid result of `execute`
- * @zh 渐进式递补执行并获取执行结果
+ * Executing in progressive and returning a valid result
  * @param {any[]} fallbacks
  * @param {(arg: any) => (any | undefined)} execute
  * @param {any} ctx
@@ -10,16 +9,15 @@ export function progressive<T extends any, K extends any>( fallbacks : K[], exec
     let result = undefined;
     for ( let i = 0; i < fallbacks.length; i++ ) {
         result = execute.call( ctx, fallbacks[ i ] );
-        if ( result ) {
-            return result as T;
-        }
+        if ( result === undefined || result === null || result === false ) continue;
+        return result as T;
     }
     return undefined;
 }
 
 /**
- * 预填充
- * @param options 选项
+ * Pre-filled undefined options with default value in separately
+ * @param options
  * @param {[string, any][]} values
  */
 export function prefills( options : any, values : [ string, any ][] ) {
@@ -32,11 +30,11 @@ export function prefills( options : any, values : [ string, any ][] ) {
 }
 
 /**
- * 深拷贝
- * @param o 对象
+ * Deep clone for any value
+ * @param o
  * @returns {any}
  */
-export function clone( o : any ) {
+export function clone( o : any ) : any {
     let buf : any;
     if ( o instanceof Array ) {
         buf = [];
