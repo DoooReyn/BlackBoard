@@ -1,7 +1,7 @@
 import type { Engine, TEngineActions } from '../engine';
 
 export enum ESystemPriority {
-    Input, MultiScreen, Render
+    Input, News, MultiScreen, Render
 }
 
 /**

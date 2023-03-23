@@ -1,9 +1,10 @@
 /**
  * A system for adapting to multiple screen sizes
  */
-import { ENativeEvent } from '../../../enum';
+import { ENativeEvent, ESystemEvent } from '../../../enum';
 import type { Engine } from '../engine';
 import { SecUpdateValue } from '../internal/sec-update-value';
+import { NewsSystem } from './news-system';
 import { ESystemPriority, System } from './system';
 
 export class MultiScreenSystem extends System {
@@ -17,6 +18,15 @@ export class MultiScreenSystem extends System {
         this._sizeChanged = false;
         this._lastTime = SecUpdateValue.now;
         this._onWindowResizeFn = this._onWindowResize.bind( this );
+    }
+
+    private static _shared : MultiScreenSystem = null;
+
+    public static get shared() {
+        if ( !MultiScreenSystem._shared ) {
+            MultiScreenSystem._shared = new MultiScreenSystem();
+        }
+        return MultiScreenSystem._shared;
     }
 
     protected override _onAttached( engine : Engine ) {
@@ -49,8 +59,8 @@ export class MultiScreenSystem extends System {
         if ( SecUpdateValue.now - this._lastTime >= 1000 ) {
             this._lastTime = SecUpdateValue.now;
             if ( this._sizeChanged ) {
-                this._resize();
                 this._sizeChanged = false;
+                this._resize();
             }
         }
     }
@@ -65,9 +75,12 @@ export class MultiScreenSystem extends System {
      * @protected
      */
     protected _resize() {
-        const { clientWidth, clientHeight } = document.documentElement;
-        this.app.stage.transform.pivot.set( clientWidth * 0.5, clientHeight * 0.5 );
-        this.app.renderer.resize( clientWidth, clientHeight );
+        const {
+            clientWidth: width, clientHeight: height,
+        } = document.documentElement;
+        this.app.stage.transform.pivot.set( width * 0.5, height * 0.5 );
+        this.app.renderer.resize( width, height );
+        NewsSystem.shared.push( ESystemEvent.Resize, { width, height } );
     }
 
 }

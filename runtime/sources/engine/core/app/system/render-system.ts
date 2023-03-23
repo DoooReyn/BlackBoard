@@ -15,6 +15,15 @@ export class RenderSystem extends System {
         this._stats = new Stats();
     }
 
+    private static _shared : RenderSystem = null;
+
+    public static get shared() {
+        if ( !RenderSystem._shared ) {
+            RenderSystem._shared = new RenderSystem();
+        }
+        return RenderSystem._shared;
+    }
+
     /**
      * Showing the container of Stats
      */
