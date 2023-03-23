@@ -1,5 +1,3 @@
-export * from './app';
-export * from './scene';
 export * from './engine';
 export * from './system/system';
 export * from './system/input-system';
