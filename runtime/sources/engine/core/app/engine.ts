@@ -1,7 +1,7 @@
 import { Application, IApplicationOptions } from 'pixi.js';
 import { logger, Lovely, prefills, progressive } from '../util';
 import { State, TStates } from '../util/state';
-import { System } from './system';
+import { System } from './system/system';
 
 /**
  * Engine states
@@ -64,32 +64,65 @@ export class Engine {
      * @private
      */
     private readonly _debug : boolean;
+    /**
+     * The designed width of screen
+     * @type {number}
+     * @private
+     */
+    private readonly _designWidth : number;
+    /**
+     * The designed height of screen
+     * @type {number}
+     * @private
+     */
+    private readonly _designHeight : number;
 
     public constructor( options : IEngineOptions ) {
         prefills( options, [ [ 'debug', false ] ] );
 
         if ( !options.view && options.canvasFallbacks ) {
-            const { querySelector, body } = document;
+            const {
+                querySelector, body,
+            } = document;
             const view = progressive( options.canvasFallbacks, querySelector, document ) as HTMLCanvasElement;
             body.appendChild( view as HTMLCanvasElement );
             options.view = view;
         }
 
+        // Initializing logger
         options.debug ? logger.enable() : logger.disable();
 
+        this._designWidth = options.width;
+        this._designHeight = options.height;
         this._systems = [];
+        this._debug = options.debug;
+        this._lovely = new Lovely();
+
+        // Construction of PixiJs application instance
         this._app = new Application( options );
+        this._app.stage.name = '<Engine>Stage';
         this._app.ticker.autoStart = false;
         this._app.ticker.minFPS = options.minFPS;
         this._app.ticker.maxFPS = options.maxFPS;
         this._app.ticker.add( this._update, this );
-        this._debug = options.debug;
-        this._lovely = new Lovely();
+
+        // Initializing states for engine instance
         this._state = new State<TEngineStates>( 'primitive', [
             [ 'primitive', 'running', this._onStarted, this ],
             [ 'running', 'paused', this._onPaused, this ],
             [ 'paused', 'running', this._onResumed, this ],
         ] );
+
+        // Keeping stage in the center of screen
+        this._app.stage.transform.pivot.set( this._designWidth * 0.5, this._designHeight * 0.5 );
+    }
+
+    get designWidth() : number {
+        return this._designWidth;
+    }
+
+    get designHeight() : number {
+        return this._designHeight;
     }
 
     /**

@@ -1,5 +1,5 @@
 import { Graphics, ObservablePoint } from 'pixi.js';
-import { SystemEvent } from '../../enum';
+import { ESystemEvent } from '../../enum';
 import { SizeData } from '../../interface';
 import { Lovely, prefills, Size } from '../util';
 import { BaseBox } from './base-box';
@@ -53,13 +53,13 @@ export class SizeBox extends BaseBox<ISizeBoxOptions> {
      * @returns {ObservablePoint}
      * @protected
      */
-    protected override get pivot() : ObservablePoint {
-        return super.pivot;
-    }
+    // protected override get pivot() : ObservablePoint {
+    //     return super.pivot;
+    // }
 
     protected override _onInit() {
         this.addChild( this._sketch );
-        this.subscriber.subscribe( SystemEvent.Resize, this._onWindowResized, this );
+        this.subscriber.subscribe( ESystemEvent.Resize, this._onWindowResized, this );
         this._refresh();
         this._positionLovely.trick();
     }

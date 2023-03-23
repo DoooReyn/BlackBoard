@@ -1,13 +1,6 @@
-import { System } from './system';
+import { ESystemPriority, System } from './system';
 
 export class InputSystem extends System {
-    public get priority() : number {
-        return 0;
-    }
-
-    public update( _delta : number ) : void {
-    }
-
     protected _onDetached() : void {
     }
 
@@ -18,5 +11,12 @@ export class InputSystem extends System {
     }
 
     protected _onStarted() : void {
+    }
+
+    public get priority() : number {
+        return ESystemPriority.Input;
+    }
+
+    public update( _delta : number ) : void {
     }
 }

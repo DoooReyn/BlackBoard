@@ -1,10 +1,10 @@
-export enum SystemEvent {
+export enum ESystemEvent {
     Enter = 'onenter',
     Exit = 'onhide',
     Resize = 'onresize',
 }
 
-export enum NativeEvent {
+export enum ENativeEvent {
     Resize= 'resize',
     Visibility = 'visibilitychange'
 }

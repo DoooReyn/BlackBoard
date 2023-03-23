@@ -31,15 +31,22 @@ export class BoundaryBox extends SizeBox {
 
         prefills( options, [
             [
-                'margin', { top: 0, left: 0, right: 0, bottom: 0 }
+                'margin', { top: 0, left: 0, right: 0, bottom: 0 },
             ], [
                 'align', {
-                    top: false, left: false, right: false, bottom: false
-                }
+                    top: false, left: false, right: false, bottom: false,
+                },
             ],
         ] );
-        prefills( options.margin, [ [ 'top', 0 ], [ 'left', 0 ], [ 'right', 0 ], [ 'bottom', 0 ], ] );
-        prefills( options.align, [ [ 'top', false ], [ 'left', false ], [ 'right', false ], [ 'bottom', false ] ] );
+        prefills( options.margin, [
+            [ 'top', 0 ], [ 'left', 0 ], [ 'right', 0 ], [ 'bottom', 0 ],
+        ] );
+        prefills( options.align, [
+            [ 'top', false ],
+            [ 'left', false ],
+            [ 'right', false ],
+            [ 'bottom', false ],
+        ] );
 
         this._marginLovely = new Lovely();
         this._alignLovely = new Lovely();
@@ -47,25 +54,8 @@ export class BoundaryBox extends SizeBox {
         this._align = clone( options.align );
     }
 
-    public override resize( _w : number, _h : number ) {
-        // super.resize( w, h );
-        throw new Error( '[BoundaryBox] `resize` is not allowed' );
-    }
-
-    public override set width( _v : number ) {
-        throw new Error( '[BoundaryBox] `width.setter` is not allowed' );
-    }
-
-    public override set height( _v : number ) {
-        throw new Error( '[BoundaryBox] `height.setter` is not allowed' );
-    }
-
-    public override get width() : number {
-        return super.width;
-    }
-
-    public override get height() : number {
-        return super.height;
+    get alignTop() {
+        return this._align.top;
     }
 
     set alignTop( v : boolean ) {
@@ -75,11 +65,22 @@ export class BoundaryBox extends SizeBox {
         }
     }
 
+    get alignLeft() {
+        return this._align.left;
+    }
+
     set alignLeft( v : boolean ) {
         if ( this._align.left !== v ) {
             this.alignLeft = v;
             this._alignLovely.trick();
         }
+    }    public override resize( _w : number, _h : number ) {
+        // super.resize( w, h );
+        throw new Error( '[BoundaryBox] `resize` is not allowed' );
+    }
+
+    get alignRight() {
+        return this._align.right;
     }
 
     set alignRight( v : boolean ) {
@@ -89,27 +90,21 @@ export class BoundaryBox extends SizeBox {
         }
     }
 
+    get alignBottom() {
+        return this._align.bottom;
+    }
+
     set alignBottom( v : boolean ) {
         if ( this._align.bottom !== v ) {
             this.alignBottom = v;
             this._alignLovely.trick();
         }
+    }    public override set width( _v : number ) {
+        throw new Error( '[BoundaryBox] `width.setter` is not allowed' );
     }
 
-    get alignTop() {
-        return this._align.top;
-    }
-
-    get alignLeft() {
-        return this._align.left;
-    }
-
-    get alignRight() {
-        return this._align.right;
-    }
-
-    get alignBottom() {
-        return this._align.bottom;
+    get marginTop() {
+        return this._margin.top;
     }
 
     set marginTop( v : number ) {
@@ -119,11 +114,21 @@ export class BoundaryBox extends SizeBox {
         }
     }
 
+    get marginLeft() {
+        return this._margin.left;
+    }
+
     set marginLeft( v : number ) {
         if ( this._margin.left !== v ) {
             this._margin.left = v;
             this._marginLovely.trick();
         }
+    }    public override set height( _v : number ) {
+        throw new Error( '[BoundaryBox] `height.setter` is not allowed' );
+    }
+
+    get marginRight() {
+        return this._margin.right;
     }
 
     set marginRight( v : number ) {
@@ -133,39 +138,21 @@ export class BoundaryBox extends SizeBox {
         }
     }
 
+    get marginBottom() {
+        return this._margin.bottom;
+    }
+
     set marginBottom( v : number ) {
         if ( this._margin.bottom !== v ) {
             this._margin.bottom = v;
             this._marginLovely.trick();
         }
-    }
-
-    get marginTop() {
-        return this._margin.top;
-    }
-
-    get marginLeft() {
-        return this._margin.left;
-    }
-
-    get marginRight() {
-        return this._margin.right;
-    }
-
-    get marginBottom() {
-        return this._margin.bottom;
+    }    public override get width() : number {
+        return super.width;
     }
 
     get isStretchWidth() {
         return this.alignLeft && this.alignRight;
-    }
-
-    get isStretchHeight() {
-        return this.alignTop && this.alignBottom;
-    }
-
-    get isStretchAll() {
-        return this.isStretchWidth && this.isStretchHeight;
     }
 
     set isStretchWidth( v : boolean ) {
@@ -173,9 +160,19 @@ export class BoundaryBox extends SizeBox {
         this.alignRight = v;
     }
 
+    get isStretchHeight() {
+        return this.alignTop && this.alignBottom;
+    }
+
     set isStretchHeight( v : boolean ) {
         this.alignTop = v;
         this.alignBottom = v;
+    }    public override get height() : number {
+        return super.height;
+    }
+
+    get isStretchAll() {
+        return this.isStretchWidth && this.isStretchHeight;
     }
 
     set isStretchAll( v : boolean ) {
@@ -202,6 +199,16 @@ export class BoundaryBox extends SizeBox {
 
         super._refresh();
     }
+
+
+
+
+
+
+
+
+
+
 
     // protected override _update( _delta : number ) {
     //     if ( this._marginLovely.angry || this._alignLovely.angry ) {

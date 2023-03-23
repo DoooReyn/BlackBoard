@@ -1,4 +1,8 @@
-import type { Engine, TEngineActions } from './engine';
+import type { Engine, TEngineActions } from '../engine';
+
+export enum ESystemPriority {
+    Input, MultiScreen, Render
+}
 
 /**
  * A system is an instance which keeping updating loop.
@@ -17,6 +21,16 @@ export abstract class System {
      * @returns {number}
      */
     public abstract get priority() : number;
+
+    /**
+     * The instance of PixiJS Application
+     * @returns {Application | undefined}
+     * @protected
+     */
+    protected get app() {
+        // @ts-ignore
+        return this?._engine?._app;
+    }
 
     /**
      * Notice comes from engine instance.
@@ -45,6 +59,7 @@ export abstract class System {
     /**
      * Attached to engine
      * - Automatically called by engine instance
+     * - Get the initialization work done here
      * @param {Engine} engine
      */
     protected _onAttached( engine : Engine ) {
@@ -54,6 +69,7 @@ export abstract class System {
     /**
      * Detached from engine
      * - Automatically called by engine instance
+     * - Get destruction work done here
      */
     protected abstract _onDetached() : void;
 

@@ -1,4 +1,4 @@
-import { NativeEvent, SystemEvent } from '../../enum';
+import { ENativeEvent, ESystemEvent } from '../../enum';
 import { IGame, IScene } from '../../interface';
 import { SizeBox } from '../box';
 import { EventBus } from '../util';
@@ -32,8 +32,8 @@ export class Scene extends SizeBox implements IScene {
      * @protected
      */
     protected registerSystemEvent() {
-        window.addEventListener( NativeEvent.Resize, this._onWindowSizeChanged.bind( this ) );
-        document.addEventListener( NativeEvent.Visibility, this._onWindowVisibilityChanged.bind( this ) );
+        window.addEventListener( ENativeEvent.Resize, this._onWindowSizeChanged.bind( this ) );
+        document.addEventListener( ENativeEvent.Visibility, this._onWindowVisibilityChanged.bind( this ) );
     }
 
     /**
@@ -72,7 +72,7 @@ export class Scene extends SizeBox implements IScene {
         this.context.view.renderer.resize( w, h );
         super.resize( w, h );
         this._refresh();
-        EventBus.shared.emit( SystemEvent.Resize );
+        EventBus.shared.emit( ESystemEvent.Resize );
     }
 
     /**
@@ -95,10 +95,10 @@ export class Scene extends SizeBox implements IScene {
     }
 
     protected onenter() {
-        EventBus.shared.emit( SystemEvent.Enter );
+        EventBus.shared.emit( ESystemEvent.Enter );
     }
 
     protected onexit() {
-        EventBus.shared.emit( SystemEvent.Exit );
+        EventBus.shared.emit( ESystemEvent.Exit );
     }
 }
