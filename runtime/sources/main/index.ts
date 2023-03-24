@@ -64,22 +64,37 @@
 // ( window as any ).panel2 = panel2;
 // ( window as any ).bunny = bunny;
 
-import { Engine, MultiScreenSystem, RenderSystem } from '../engine';
+import {
+    Engine,
+    EngineEvent,
+    logger,
+    MultiScreenSystem,
+    NewsSystem,
+    RenderSystem,
+    Scene,
+    System,
+} from '../engine';
+import { Director } from '../engine/core/app/internal/director';
 
-const engine = new Engine( {
+new Engine( {
     canvasFallbacks: [ '#black-board', '.black-board', 'canvas' ],
     resolution     : window.devicePixelRatio || 1,
     autoDensity    : true,
-    autoStart      : true,
+    autoStart      : false,
     backgroundColor: 0x6495ed,
     width          : 960,
     height         : 640,
-    debug          : true,
     maxFPS         : 60,
     minFPS         : 30,
-} );
-engine.mount( new MultiScreenSystem() );
-engine.mount( new RenderSystem() );
-engine.run();
-
-( window as any ).engine = engine;
+    debug          : true,
+} )
+    .when( EngineEvent.OnSystemMounted, ( engine : Engine, system : System ) => {
+        logger.debug( logger.enabled, engine.state, system.name, system.priority );
+    } )
+    .when( EngineEvent.OnStarted, ( engine : Engine ) => {
+        logger.debug( engine.state, Director.shared.runningScene );
+        Director.shared.runScene( new Scene() );
+        logger.debug( engine.state, Director.shared.runningScene?.name );
+    } )
+    .mount( NewsSystem.shared, MultiScreenSystem.shared, RenderSystem.shared )
+    .run();

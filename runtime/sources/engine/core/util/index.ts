@@ -9,3 +9,4 @@ export * from './boundary-point';
 export * from './next-id-generator';
 export * from './lovely';
 export * from './key-map';
+export * from './singleton';

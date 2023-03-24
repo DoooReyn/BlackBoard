@@ -76,6 +76,9 @@ export class NewsSystem extends System {
      * @param {number} priority
      */
     public subscribe( audience : Audience, channel : string, priority : number = 0 ) {
+        if ( !this._audiences.has( audience.name ) ) {
+            this.register( audience );
+        }
         let channelInstance = this._channels.get( channel );
         if ( !channelInstance ) {
             channelInstance = new Channel();

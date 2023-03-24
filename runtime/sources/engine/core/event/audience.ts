@@ -9,7 +9,7 @@ export class Audience {
     public constructor( fn : TReceiveFn, context : any ) {
         this._receiveFn = fn;
         this._receiveCtx = context;
-        this._name = NextIDGenerator.next( 'Audience' );
+        this._name = NextIDGenerator.nextWithKey( 'Audience' );
     }
 
     protected _name : string;

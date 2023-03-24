@@ -1,3 +1,4 @@
+import { NextIDGenerator } from '../../util';
 import type { Engine, TEngineActions } from '../engine';
 
 export enum ESystemPriority {
@@ -15,6 +16,16 @@ export abstract class System {
      * @protected
      */
     protected _engine : Engine;
+
+    protected constructor() {
+        this._name = NextIDGenerator.nextWithKey( 'System' );
+    }
+
+    private readonly _name : string;
+
+    public get name() {
+        return this._name;
+    }
 
     /**
      * The priority of system

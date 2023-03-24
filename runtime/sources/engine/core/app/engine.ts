@@ -9,6 +9,17 @@ import { System } from './system/system';
 type TEngineStates = TStates | 'running' | 'paused';
 
 /**
+ * Engine events
+ */
+export enum EngineEvent {
+    OnStarted = '_onStartedCb',
+    OnPaused = '_onPausedCb',
+    OnResumed = '_onResumedCb',
+    OnSystemMounted = '_onSystemMountedCb',
+    OnSystemUnmounted = '_onSystemUnmountedCb'
+}
+
+/**
  * Engine actions
  */
 export type TEngineActions =
@@ -76,6 +87,12 @@ export class Engine {
      * @private
      */
     private readonly _designHeight : number;
+
+    private _onStartedCb : ( engine : Engine ) => void;
+    private _onPausedCb : ( engine : Engine ) => void;
+    private _onResumedCb : ( engine : Engine ) => void;
+    private _onSystemMountedCb : ( engine : Engine, sys : System ) => void;
+    private _onSystemUnmountedCb : ( engine : Engine, sys : System ) => void;
 
     public constructor( options : IEngineOptions ) {
         prefills( options, [ [ 'debug', false ] ] );
@@ -151,14 +168,19 @@ export class Engine {
     /**
      * Mounting `System` with specified priority to manage its own state,
      * such as rendering and animation.
-     * @param {System} sys
+     * @param systems
      */
-    public mount( sys : System ) {
-        if ( this._systems.indexOf( sys ) === -1 ) {
-            this._systems.push( sys );
-            this._lovely.trick();
-            sys.notify( 'onAttached', this );
+    public mount( ...systems : System[] ) {
+        for ( let i = 0; i < systems.length; i++ ) {
+            const sys = systems[ i ];
+            if ( this._systems.indexOf( sys ) === -1 ) {
+                this._systems.push( sys );
+                this._lovely.trick();
+                sys.notify( 'onAttached', this );
+                this._onSystemMountedCb && this._onSystemMountedCb( this, sys );
+            }
         }
+        return this;
     }
 
     /**
@@ -171,6 +193,7 @@ export class Engine {
             this._systems.splice( i, 1 );
             this._lovely.trick();
             sys.notify( 'onDetached' );
+            this._onSystemUnmountedCb && this._onSystemUnmountedCb( this, sys );
         }
     }
 
@@ -196,12 +219,25 @@ export class Engine {
     }
 
     /**
+     * When to do
+     * @param {EngineEvent} event
+     * @param {(engine: Engine) => void} fn
+     * @param context
+     * @returns {this}
+     */
+    public when( event : EngineEvent, fn : ( engine : Engine, ...args : any[] ) => void, context? : any ) {
+        this[ event ] = fn.bind( context );
+        return this;
+    }
+
+    /**
      * Called when engine started
      * @protected
      */
     protected _onStarted() {
         this._app.ticker.start();
         this._systems.forEach( v => v.notify( 'onStarted' ) );
+        this._onStartedCb && this._onStartedCb( this );
     }
 
     /**
@@ -211,6 +247,7 @@ export class Engine {
     protected _onPaused() {
         this._app.ticker.stop();
         this._systems.forEach( v => v.notify( 'onPaused' ) );
+        this._onPausedCb && this._onPausedCb( this );
     }
 
     /**
@@ -220,6 +257,7 @@ export class Engine {
     protected _onResumed() {
         this._app.ticker.start();
         this._systems.forEach( v => v.notify( 'onResumed' ) );
+        this._onResumedCb && this._onResumedCb( this );
     }
 
     /**

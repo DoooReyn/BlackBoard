@@ -1,5 +1,6 @@
 import { Renderer } from 'pixi.js';
 import type { Engine } from '../engine';
+import { Director } from '../internal/director';
 import { Stats } from '../internal/stats';
 import { ESystemPriority, System } from './system';
 
@@ -7,6 +8,7 @@ import { ESystemPriority, System } from './system';
  * A system for rendering
  */
 export class RenderSystem extends System {
+    public director : Director;
     private _stats : Stats;
 
     constructor() {
@@ -43,8 +45,10 @@ export class RenderSystem extends System {
 
         this._stats.setParent( this.app.stage );
         this._stats.init( this.app.renderer as Renderer );
-
         engine.debug ? this.showStats() : this.hideStats();
+
+        this.director = Director.shared;
+        this.director.init( this.app.stage );
     }
 
     protected _onDetached() : void {
