@@ -1,23 +1,13 @@
 import { Application, IApplicationOptions } from 'pixi.js';
-import { logger, Lovely, prefills, progressive } from '../util';
-import { State, TStates } from '../util/state';
+import {
+    logger, Lovely, prefills, progressive, Signals, State, TStates,
+} from '../util';
 import { System } from './system/system';
 
 /**
  * Engine states
  */
 type TEngineStates = TStates | 'running' | 'paused';
-
-/**
- * Engine events
- */
-export enum EngineEvent {
-    OnStarted = '_onStartedCb',
-    OnPaused = '_onPausedCb',
-    OnResumed = '_onResumedCb',
-    OnSystemMounted = '_onSystemMountedCb',
-    OnSystemUnmounted = '_onSystemUnmountedCb'
-}
 
 /**
  * Engine actions
@@ -40,7 +30,15 @@ export interface IEngineOptions extends IApplicationOptions {
     height : number;
     maxFPS : number;
     minFPS : number;
+    systems? : System[],
+    onStarted? : TEngineTrigger;
+    onPaused? : TEngineTrigger;
+    onResumed? : TEngineTrigger;
+    onSystemMounted? : TEngineTrigger;
+    onSystemUnmounted? : TEngineTrigger;
 }
+
+export type TEngineTrigger = ( engine : Engine, ...args : any[] ) => void;
 
 /**
  * Engine
@@ -48,27 +46,29 @@ export interface IEngineOptions extends IApplicationOptions {
  * - Game loop
  */
 export class Engine {
+    public onStartedSignal : Signals<TEngineTrigger>;
+    public onPausedSignal : Signals<TEngineTrigger>;
+    public onResumedSignal : Signals<TEngineTrigger>;
+    public onSystemMountedSignal : Signals<TEngineTrigger>;
+    public onSystemUnmountedSignal : Signals<TEngineTrigger>;
     /**
      * Updating systems
      * @type {System[]}
      * @private
      */
     private _systems : System[];
-
     /**
      * A dirty flag for sorting systems
      * @type {Lovely}
      * @private
      */
     private _lovely : Lovely;
-
     /**
      * PixiJS App instance
      * @type {Application}
      * @private
      */
     private _app : Application;
-
     /**
      * A flag to specify whether it is debug mode or not
      * @type {boolean}
@@ -87,12 +87,6 @@ export class Engine {
      * @private
      */
     private readonly _designHeight : number;
-
-    private _onStartedCb : ( engine : Engine ) => void;
-    private _onPausedCb : ( engine : Engine ) => void;
-    private _onResumedCb : ( engine : Engine ) => void;
-    private _onSystemMountedCb : ( engine : Engine, sys : System ) => void;
-    private _onSystemUnmountedCb : ( engine : Engine, sys : System ) => void;
 
     public constructor( options : IEngineOptions ) {
         prefills( options, [ [ 'debug', false ] ] );
@@ -132,6 +126,24 @@ export class Engine {
 
         // Keeping stage in the center of screen
         this._app.stage.transform.pivot.set( this._designWidth * 0.5, this._designHeight * 0.5 );
+
+        // Construction of signals
+        this.onStartedSignal = new Signals<TEngineTrigger>();
+        this.onPausedSignal = new Signals<TEngineTrigger>();
+        this.onResumedSignal = new Signals<TEngineTrigger>();
+        this.onSystemMountedSignal = new Signals<TEngineTrigger>();
+        this.onSystemUnmountedSignal = new Signals<TEngineTrigger>();
+        options.onStarted && this.onStartedSignal.connect( options.onStarted );
+        options.onPaused && this.onPausedSignal.connect( options.onPaused );
+        options.onResumed && this.onResumedSignal.connect( options.onResumed );
+        options.onSystemMounted && this.onSystemMountedSignal.connect( options.onSystemMounted );
+        options.onSystemUnmounted && this.onSystemUnmountedSignal.connect( options.onSystemUnmounted );
+
+        // Mounting systems
+        if ( options.systems && options.systems.length > 0 ) {
+            this.mount( ...options.systems );
+        }
+
     }
 
     get designWidth() : number {
@@ -177,7 +189,7 @@ export class Engine {
                 this._systems.push( sys );
                 this._lovely.trick();
                 sys.notify( 'onAttached', this );
-                this._onSystemMountedCb && this._onSystemMountedCb( this, sys );
+                this.onSystemMountedSignal.emit( this, sys );
             }
         }
         return this;
@@ -193,7 +205,7 @@ export class Engine {
             this._systems.splice( i, 1 );
             this._lovely.trick();
             sys.notify( 'onDetached' );
-            this._onSystemUnmountedCb && this._onSystemUnmountedCb( this, sys );
+            this.onSystemUnmountedSignal.emit( this, sys );
         }
     }
 
@@ -219,25 +231,13 @@ export class Engine {
     }
 
     /**
-     * When to do
-     * @param {EngineEvent} event
-     * @param {(engine: Engine) => void} fn
-     * @param context
-     * @returns {this}
-     */
-    public when( event : EngineEvent, fn : ( engine : Engine, ...args : any[] ) => void, context? : any ) {
-        this[ event ] = fn.bind( context );
-        return this;
-    }
-
-    /**
      * Called when engine started
      * @protected
      */
     protected _onStarted() {
         this._app.ticker.start();
         this._systems.forEach( v => v.notify( 'onStarted' ) );
-        this._onStartedCb && this._onStartedCb( this );
+        this.onStartedSignal.emit( this );
     }
 
     /**
@@ -247,7 +247,7 @@ export class Engine {
     protected _onPaused() {
         this._app.ticker.stop();
         this._systems.forEach( v => v.notify( 'onPaused' ) );
-        this._onPausedCb && this._onPausedCb( this );
+        this.onPausedSignal.emit( this );
     }
 
     /**
@@ -257,7 +257,7 @@ export class Engine {
     protected _onResumed() {
         this._app.ticker.start();
         this._systems.forEach( v => v.notify( 'onResumed' ) );
-        this._onResumedCb && this._onResumedCb( this );
+        this.onResumedSignal.emit( this );
     }
 
     /**

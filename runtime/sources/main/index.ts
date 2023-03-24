@@ -65,14 +65,7 @@
 // ( window as any ).bunny = bunny;
 
 import {
-    Engine,
-    EngineEvent,
-    logger,
-    MultiScreenSystem,
-    NewsSystem,
-    RenderSystem,
-    Scene,
-    System,
+    Engine, logger, MultiScreenSystem, NewsSystem, RenderSystem, Scene, System,
 } from '../engine';
 import { Director } from '../engine/core/app/internal/director';
 
@@ -87,14 +80,15 @@ new Engine( {
     maxFPS         : 60,
     minFPS         : 30,
     debug          : true,
-} )
-    .when( EngineEvent.OnSystemMounted, ( engine : Engine, system : System ) => {
-        logger.debug( logger.enabled, engine.state, system.name, system.priority );
-    } )
-    .when( EngineEvent.OnStarted, ( engine : Engine ) => {
-        logger.debug( engine.state, Director.shared.runningScene );
+    systems        : [
+        NewsSystem.shared, MultiScreenSystem.shared, RenderSystem.shared,
+    ],
+    onStarted      : ( engine : Engine ) => {
         Director.shared.runScene( new Scene() );
-        logger.debug( engine.state, Director.shared.runningScene?.name );
-    } )
-    .mount( NewsSystem.shared, MultiScreenSystem.shared, RenderSystem.shared )
-    .run();
+        logger.debug( `Engine<${ engine.state }>, Scene<${ Director.shared.runningScene?.name }>` );
+    },
+    onSystemMounted: ( engine : Engine, system : System ) => {
+        logger.debug( `Engine<${ engine.state }>, System<${ system.name },${ system.priority }>` );
+    },
+} ).run();
+
