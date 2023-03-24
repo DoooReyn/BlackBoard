@@ -15,7 +15,7 @@ export abstract class System {
      * @type {Engine}
      * @protected
      */
-    protected _engine : Engine;
+    public engine : Engine;
 
     protected constructor() {
         this._name = NextIDGenerator.nextWithKey( 'System' );
@@ -40,7 +40,7 @@ export abstract class System {
      */
     protected get app() {
         // @ts-ignore
-        return this?._engine?._app;
+        return this?.engine?._app;
     }
 
     /**
@@ -74,7 +74,7 @@ export abstract class System {
      * @param {Engine} engine
      */
     protected _onAttached( engine : Engine ) {
-        this._engine = engine;
+        this.engine = engine;
     }
 
     /**

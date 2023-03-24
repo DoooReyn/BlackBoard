@@ -65,7 +65,7 @@
 // ( window as any ).bunny = bunny;
 
 import {
-    Engine, logger, MultiScreenSystem, NewsSystem, RenderSystem, Scene, System,
+    Engine, logger, NewsSystem, RenderSystem, Scene, System,
 } from '../engine';
 import { Director } from '../engine/core/app/internal/director';
 
@@ -81,7 +81,7 @@ new Engine( {
     minFPS         : 30,
     debug          : true,
     systems        : [
-        NewsSystem.shared, MultiScreenSystem.shared, RenderSystem.shared,
+        NewsSystem.shared, RenderSystem.shared,
     ],
     onStarted      : ( engine : Engine ) => {
         Director.shared.runScene( new Scene() );

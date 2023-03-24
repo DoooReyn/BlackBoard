@@ -1,6 +1,9 @@
+import { ENativeEvent, ESystemEvent } from '../../../enum';
 import type { Audience } from '../../event/audience';
 import { Channel } from '../../event/channel';
-import { KeyMap } from '../../util';
+import { KeyMap, Signals } from '../../util';
+import { Engine } from '../engine';
+import { SecUpdateValue } from '../internal/sec-update-value';
 import { ESystemPriority, System } from './system';
 
 /**
@@ -14,6 +17,11 @@ type TNewsInfo = [ string, any ];
  * A system for event delivery and management
  */
 export class NewsSystem extends System {
+    public onResizeSignal : Signals<() => void>;
+    protected _onVisibilityChanged : () => void;
+    protected _onWindowSizeChanged : () => void;
+    private _sizeChanged : boolean;
+    private _lastTime : number;
     /**
      * Channels of the news center
      * @type {KeyMap<Channel>}
@@ -37,8 +45,11 @@ export class NewsSystem extends System {
         super();
 
         this._news = [];
+        this._sizeChanged = false;
+        this._lastTime = SecUpdateValue.now;
         this._channels = new KeyMap<Channel>();
         this._audiences = new KeyMap<Audience>();
+        this.onResizeSignal = new Signals<() => void>();
     }
 
     private static _shared : NewsSystem = null;
@@ -113,10 +124,32 @@ export class NewsSystem extends System {
         this._news.push( [ channel, data ] );
     }
 
+    protected override _onAttached( engine : Engine ) {
+        super._onAttached( engine );
+
+        this._sizeChanged = true;
+
+        this._onVisibilityChanged = () => {
+            const visibility = document.visibilityState === 'visible' ? ESystemEvent.Enter : ESystemEvent.Exit;
+            this.push( ESystemEvent.Visibility, visibility );
+        };
+        document.addEventListener( ENativeEvent.Visibility, this._onVisibilityChanged );
+
+        this._onWindowSizeChanged = () => {
+            this._sizeChanged = true;
+        };
+
+        window.addEventListener( ENativeEvent.Resize, this._onWindowSizeChanged );
+    }
+
     protected _onDetached() : void {
-        this._news.length = 0;
+        document.removeEventListener( ENativeEvent.Visibility, this._onVisibilityChanged );
+        window.removeEventListener( ENativeEvent.Visibility, this._onWindowSizeChanged );
         this._channels.clear();
         this._audiences.clear();
+        this._news.length = 0;
+        this._onVisibilityChanged = null;
+        this._onWindowSizeChanged = null;
     }
 
     protected _onPaused() : void {
@@ -133,6 +166,21 @@ export class NewsSystem extends System {
     }
 
     public update( _delta : number ) : void {
+        if ( SecUpdateValue.now - this._lastTime >= 1000 ) {
+            this._lastTime = SecUpdateValue.now;
+            if ( this._sizeChanged ) {
+                this._sizeChanged = false;
+
+                const {
+                    clientWidth: width, clientHeight: height,
+                } = document.documentElement;
+                this.app.stage.transform.pivot.set( width * 0.5, height * 0.5 );
+                this.app.renderer.resize( width, height );
+                this.push( ESystemEvent.Resize, null );
+                this.onResizeSignal.emit();
+            }
+        }
+
         if ( this._news.length > 0 ) {
             let sent = [];
 

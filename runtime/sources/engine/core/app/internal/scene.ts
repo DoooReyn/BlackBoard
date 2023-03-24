@@ -40,8 +40,8 @@ export class Scene extends Container {
         this._audience = null;
     }
 
-    protected _onWindowResized( size : { width : number; height : number; } ) {
-        logger.debug( this.name, 'window resize to', size );
+    protected _onWindowResized() {
+        logger.debug( this.name, 'window resized' );
     }
 
     protected _onDataReceived( channel : string, data : any, next : Function ) {
@@ -49,7 +49,7 @@ export class Scene extends Container {
 
         switch ( channel ) {
             case ESystemEvent.Resize:
-                this._onWindowResized( data );
+                this._onWindowResized();
                 break;
             default:
                 break;

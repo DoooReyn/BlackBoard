@@ -1,4 +1,8 @@
-import { Application, IApplicationOptions } from 'pixi.js';
+import {
+    Application,
+    IApplicationOptions,
+    IRenderer,
+} from 'pixi.js';
 import {
     logger, Lovely, prefills, progressive, Signals, State, TStates,
 } from '../util';
@@ -40,6 +44,8 @@ export interface IEngineOptions extends IApplicationOptions {
 
 export type TEngineTrigger = ( engine : Engine, ...args : any[] ) => void;
 
+export let EngineInstance : Engine = null;
+
 /**
  * Engine
  * - Game entry
@@ -51,6 +57,9 @@ export class Engine {
     public onResumedSignal : Signals<TEngineTrigger>;
     public onSystemMountedSignal : Signals<TEngineTrigger>;
     public onSystemUnmountedSignal : Signals<TEngineTrigger>;
+
+    public renderer: IRenderer;
+
     /**
      * Updating systems
      * @type {System[]}
@@ -89,6 +98,8 @@ export class Engine {
     private readonly _designHeight : number;
 
     public constructor( options : IEngineOptions ) {
+        EngineInstance = this;
+
         prefills( options, [ [ 'debug', false ] ] );
 
         if ( !options.view && options.canvasFallbacks ) {
@@ -116,6 +127,7 @@ export class Engine {
         this._app.ticker.minFPS = options.minFPS;
         this._app.ticker.maxFPS = options.maxFPS;
         this._app.ticker.add( this._update, this );
+        this.renderer = this._app.renderer;
 
         // Initializing states for engine instance
         this._state = new State<TEngineStates>( 'primitive', [

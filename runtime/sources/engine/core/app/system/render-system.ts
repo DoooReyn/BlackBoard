@@ -48,7 +48,6 @@ export class RenderSystem extends System {
         engine.debug ? this.showStats() : this.hideStats();
 
         this.director = Director.shared;
-        this.director.init( this.app.stage );
     }
 
     protected _onDetached() : void {
