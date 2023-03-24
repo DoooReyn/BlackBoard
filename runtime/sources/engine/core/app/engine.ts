@@ -146,11 +146,11 @@ export class Engine {
 
     }
 
-    get designWidth() : number {
+    public get designWidth() : number {
         return this._designWidth;
     }
 
-    get designHeight() : number {
+    public get designHeight() : number {
         return this._designHeight;
     }
 

@@ -28,7 +28,7 @@ export class Director extends Singleton<Director>() {
                 this._runningScene.destroy();
             }
             this._runningScene = scene;
-            this._runningScene.parent = this._root;
+            this._root.addChild( this._runningScene );
         }
     }
 
