@@ -1,7 +1,6 @@
-import { ENativeEvent, ESystemEvent } from '../../../enum';
 import type { Audience } from '../../event/audience';
 import { Channel } from '../../event/channel';
-import { KeyMap, Signals } from '../../util';
+import { KeyMap } from '../../util';
 import { Engine } from '../engine';
 import { ESystemPriority, System } from './system';
 
@@ -16,10 +15,6 @@ type TNewsInfo = [ string, any ];
  * A system for event delivery and management
  */
 export class NewsSystem extends System {
-    public onResizeSignal : Signals<() => void>;
-    protected _onVisibilityChanged : () => void;
-    protected _onWindowSizeChanged : () => void;
-    private _sizeChanged : boolean;
     /**
      * Channels of the news center
      * @type {KeyMap<Channel>}
@@ -43,10 +38,8 @@ export class NewsSystem extends System {
         super();
 
         this._news = [];
-        this._sizeChanged = false;
         this._channels = new KeyMap<Channel>();
         this._audiences = new KeyMap<Audience>();
-        this.onResizeSignal = new Signals<() => void>();
     }
 
     private static _shared : NewsSystem = null;
@@ -111,40 +104,25 @@ export class NewsSystem extends System {
      * Pushing rather than sending news
      * @param {string} channel
      * @param data
+     * @param ignoreDuplicated
      */
-    public push( channel : string, data : any ) {
+    public push( channel : string, data : any, ignoreDuplicated : boolean = false ) {
         const last = this._news[ this._news.length - 1 ];
-        if ( last && last[ 0 ] === channel && last[ 1 ] === data ) {
+        if ( !ignoreDuplicated && last && last[ 0 ] === channel && last[ 1 ] === data ) {
             // avoid pushing duplicated data
             return;
         }
         this._news.push( [ channel, data ] );
     }
 
-    protected override _onAttached( _engine : Engine ) {
-        this._sizeChanged = true;
+    protected _onAttached( _engine : Engine ) {
 
-        this._onVisibilityChanged = () => {
-            const visibility = document.visibilityState === 'visible' ? ESystemEvent.Enter : ESystemEvent.Exit;
-            this.push( ESystemEvent.Visibility, visibility );
-        };
-        document.addEventListener( ENativeEvent.Visibility, this._onVisibilityChanged );
-
-        this._onWindowSizeChanged = () => {
-            this._sizeChanged = true;
-        };
-
-        window.addEventListener( ENativeEvent.Resize, this._onWindowSizeChanged );
     }
 
     protected _onDetached() : void {
-        document.removeEventListener( ENativeEvent.Visibility, this._onVisibilityChanged );
-        window.removeEventListener( ENativeEvent.Visibility, this._onWindowSizeChanged );
         this._channels.clear();
         this._audiences.clear();
         this._news.length = 0;
-        this._onVisibilityChanged = null;
-        this._onWindowSizeChanged = null;
     }
 
     protected _onPaused() : void {
@@ -181,18 +159,8 @@ export class NewsSystem extends System {
         return ESystemPriority.News;
     }
 
-    public secUpdate( engine : Engine, _delta : number ) : void {
-        if ( this._sizeChanged ) {
-            this._sizeChanged = false;
+    public secUpdate( _engine : Engine, _delta : number ) : void {
 
-            const {
-                clientWidth: width, clientHeight: height,
-            } = document.documentElement;
-            engine.root.transform.pivot.set( width * 0.5, height * 0.5 );
-            engine.renderer.resize( width, height );
-            this.push( ESystemEvent.Resize, null );
-            this.onResizeSignal.emit();
-        }
     }
 
     /**

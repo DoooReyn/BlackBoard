@@ -1,5 +1,5 @@
 import {
-    Engine, logger, NewsSystem, RenderSystem, Scene, System,
+    Engine, logger, NativeEventSystem, NewsSystem, RenderSystem, Scene, System,
 } from '../engine';
 import { Director } from '../engine/core/app/internal/director';
 
@@ -15,7 +15,9 @@ new Engine( {
                 minFPS         : 30,
                 debug          : true,
                 systems        : [
-                    NewsSystem.shared, RenderSystem.shared,
+                    NativeEventSystem.shared,
+                    NewsSystem.shared,
+                    RenderSystem.shared,
                 ],
                 onStarted      : ( engine : Engine ) => {
                     Director.shared.runScene( new Scene() );
@@ -23,6 +25,18 @@ new Engine( {
                 },
                 onSystemMounted: ( engine : Engine, system : System ) => {
                     logger.debug( `Engine<${ engine.state }>, System<${ system.name },${ system.priority }>` );
+                    if ( system instanceof NativeEventSystem ) {
+                        // Applying your own screen adaption strategy here
+                        NativeEventSystem.shared.onWindowResized.connect( () => {
+                            const {
+                                clientWidth: width, clientHeight: height,
+                            } = document.documentElement;
+                            engine.root.transform.pivot.set( width * 0.5, height * 0.5 );
+                            engine.renderer.resize( width, height );
+                        } );
+                        // Applying at once
+                        NativeEventSystem.shared.onWindowResized.emit();
+                    }
                 },
             } ).run();
 

@@ -1,6 +1,10 @@
+import { Engine } from '../engine';
 import { ESystemPriority, System } from './system';
 
 export class InputSystem extends System {
+    protected _onAttached( _engine : Engine ) : void {
+    }
+
     protected _onDetached() : void {
     }
 
@@ -13,10 +17,13 @@ export class InputSystem extends System {
     protected _onStarted() : void {
     }
 
+    public frameUpdate( _engine : Engine, _delta : number ) : void {
+    }
+
     public get priority() : number {
         return ESystemPriority.Input;
     }
 
-    public frameUpdate( _delta : number ) : void {
+    public secUpdate( _engine : Engine, _delta : number ) : void {
     }
 }

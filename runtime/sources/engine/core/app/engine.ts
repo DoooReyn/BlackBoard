@@ -40,6 +40,7 @@ export type TEngineUpdate = ( engine : Engine, delta : number ) => void;
  * - Game loop
  */
 export class Engine {
+    public static shared : Engine = null;
     public onStartedSignal : Signals<TEngineTrigger>;
     public onPausedSignal : Signals<TEngineTrigger>;
     public onResumedSignal : Signals<TEngineTrigger>;
@@ -49,7 +50,7 @@ export class Engine {
     public onFrameUpdate : Signals<TEngineUpdate>;
 
     public renderer : IRenderer;
-    public root: Container;
+    public root : Container;
 
     private _timeCounter : TimeCounter;
 
@@ -91,6 +92,8 @@ export class Engine {
     private readonly _designHeight : number;
 
     public constructor( options : IEngineOptions ) {
+        Engine.shared = this;
+
         prefills( options, [ [ 'debug', false ] ] );
 
         if ( !options.view && options.canvasFallbacks ) {
@@ -123,13 +126,14 @@ export class Engine {
         this.root = this._app.stage;
 
         // Initializing states for engine instance
-        this._state = new State<TEngineStates>( 'primitive', [ [ 'primitive',
-                                                                 'running',
-                                                                 this._onStarted,
-                                                                 this,
-        ], [ 'running', 'paused', this._onPaused, this,
-        ], [ 'paused', 'running', this._onResumed, this,
-        ],
+        this._state = new State<TEngineStates>( 'primitive', [
+            [
+                'primitive', 'running', this._onStarted, this,
+            ], [
+                'running', 'paused', this._onPaused, this,
+            ], [
+                'paused', 'running', this._onResumed, this,
+            ],
         ] );
 
         // Keeping stage in the center of screen

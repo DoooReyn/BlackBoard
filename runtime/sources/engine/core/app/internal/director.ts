@@ -1,19 +1,8 @@
 import { Singleton } from '../../util';
-import { EngineInstance } from '../engine';
+import { Engine } from '../engine';
 import { Scene } from './scene';
 
 export class Director extends Singleton<Director>() {
-    public get root() {
-        return EngineInstance ? EngineInstance[ '_app' ].stage : null;
-    }
-
-    public get renderer() {
-        return EngineInstance ? EngineInstance.renderer : null;
-    }
-
-    public get screen() {
-        return EngineInstance ? EngineInstance.renderer.screen : null;
-    }
 
     protected _runningScene : Scene;
 
@@ -27,7 +16,7 @@ export class Director extends Singleton<Director>() {
                 this._runningScene.destroy();
             }
             this._runningScene = scene;
-            this.root.addChild( this._runningScene );
+            Engine.shared.root.addChild( this._runningScene );
         }
     }
 
