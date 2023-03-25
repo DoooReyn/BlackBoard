@@ -163,6 +163,10 @@ export class Engine {
         }
     }
 
+    public get running() {
+        return this._state.is( 'running' );
+    }
+
     public get designWidth() : number {
         return this._designWidth;
     }

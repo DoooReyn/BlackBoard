@@ -1,6 +1,8 @@
-export type TSignalTrigger<T extends Function> = [ T, any? ];
+type TAnyFn = ( ...args : any[] ) => any;
 
-export class Signal<T extends Function> {
+export type TSignalTrigger<T extends TAnyFn> = [ T, any? ];
+
+export class Signal<T extends TAnyFn> {
     private _trigger : T;
     private _context : any;
 
@@ -19,12 +21,12 @@ export class Signal<T extends Function> {
         this._context = null;
     }
 
-    emit( ...args : any[] ) {
+    emit( ...args : Parameters<T> ) {
         this._trigger && this._trigger.apply( this._context, args );
     }
 }
 
-export class Signals<T extends Function> {
+export class Signals<T extends TAnyFn> {
     private readonly _triggers : TSignalTrigger<T>[];
 
     constructor() {
@@ -49,7 +51,7 @@ export class Signals<T extends Function> {
         this._triggers.length = 0;
     }
 
-    emit( ...args : any[] ) {
+    emit( ...args : Parameters<T> ) {
         if ( this._triggers.length > 0 ) {
             this._triggers.forEach( v => {
                 const [ tr, ctx ] = v;

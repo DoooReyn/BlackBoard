@@ -1,60 +1,77 @@
-import { Container } from 'pixi.js';
-import { ESystemEvent } from '../../../enum';
-import { Audience } from '../../event/audience';
-import { logger, NextIDGenerator } from '../../util';
-import { NewsSystem } from '../system/news-system';
+import { logger, Signals } from '../../util';
+import { NativeEventSystem } from '../system/native-event-system';
+import { View } from './view';
 
-export class Scene extends Container {
-    private _audience : Audience;
+export type TSceneOperation = 'squeezed' | 'restored' | 'purged';
+
+export type TSceneTrigger = ( type : TSceneOperation ) => void;
+
+export class Scene extends View {
+    public onStackOperatedSignal : Signals<TSceneTrigger>;
 
     constructor() {
         super();
 
-        this.name = NextIDGenerator.nextWithKey( 'Scene' );
-
-        this._audience = new Audience( this._onDataReceived, this );
-
-        this.on( 'added', this._onInit, this );
-        this.on( 'removed', this._onReset, this );
-        this.on( 'destroyed', this._onCleanup, this );
+        this.onStackOperatedSignal = new Signals<TSceneTrigger>();
+        this._running = false;
     }
 
-    public update( _delta : number ) {
+    private _running : boolean;
 
+    public get running() {
+        return this._running;
     }
 
-    protected _onInit() {
-        NewsSystem.shared.subscribe( this._audience, ESystemEvent.Resize );
+    protected _onStackOperated( type : TSceneOperation ) {
+        switch ( type ) {
+            case 'squeezed':
+                this._onSqueezed();
+                break;
+            case 'restored':
+                this._onRestored();
+                break;
+            case 'purged':
+                this._onPurged();
+                break;
+        }
     }
 
-    protected _onReset() {
-        NewsSystem.shared.unsubscribe( this._audience, ESystemEvent.Resize );
-        NewsSystem.shared.unregister( this._audience );
+    protected _onSqueezed() {
+        this._running = false;
+        this.renderable = false;
     }
 
-    protected _onCleanup() {
-        this.off( 'added', this._onInit, this );
-        this.off( 'removed', this._onReset, this );
-        this.off( 'destroyed', this._onCleanup, this );
+    protected _onRestored() {
+        this._running = true;
+        this.renderable = true;
+    }
+
+    protected _onPurged() {
+        this._running = false;
+        this.renderable = false;
+        this.destroy();
+    }
+
+    protected override _onCleanup() {
         this._onReset();
-        this._audience = null;
+    }
+
+    protected _onDataReceived( channel : string, data : any, next : Function ) {
+        logger.debug( this.name, 'received', channel, data );
+        next();
+    }
+
+    protected override _onInit() {
+        this.onStackOperatedSignal.connect( this._onSqueezed, this );
+        NativeEventSystem.shared.onWindowResized.connect( this._onWindowResized, this );
+    }
+
+    protected override _onReset() {
+        this.onStackOperatedSignal.disconnect( this._onSqueezed, this );
+        NativeEventSystem.shared.onWindowResized.disconnect( this._onWindowResized, this );
     }
 
     protected _onWindowResized() {
         logger.debug( this.name, 'window resized' );
-    }
-
-    protected _onDataReceived( channel : string, data : any, next : Function ) {
-        logger.debug( this.name, 'receive', channel, data );
-
-        switch ( channel ) {
-            case ESystemEvent.Resize:
-                this._onWindowResized();
-                break;
-            default:
-                break;
-        }
-
-        next();
     }
 }

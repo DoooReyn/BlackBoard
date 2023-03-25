@@ -1,7 +1,7 @@
 /**
  * A value should be updated in per second
  */
-import { TimeCounter } from '../../util';
+import { TimeCounter } from './time-counter';
 
 export class SecUpdateValue {
     protected _count : number;

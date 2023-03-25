@@ -1,6 +1,6 @@
 import { ENativeEvent } from '../../../enum';
 import { Signals } from '../../util';
-import type { Engine } from '../engine';
+import { Engine } from '../engine';
 import { System } from './system';
 
 export type TNativeEventTrigger = () => void;
@@ -38,18 +38,18 @@ export class NativeEventSystem extends System {
         document.addEventListener( ENativeEvent.Visibility, this._windowVisibilityChangedBinding );
     }
 
-    protected _onDetached() : void {
+    protected _onDetached( _engine : Engine ) : void {
         window.removeEventListener( ENativeEvent.Resize, this._onWindowSizeChangedBinding );
         document.removeEventListener( ENativeEvent.Visibility, this._windowVisibilityChangedBinding );
     }
 
-    protected _onPaused() : void {
+    protected _onPaused( _engine : Engine ) : void {
     }
 
-    protected _onResumed() : void {
+    protected _onResumed( _engine : Engine ) : void {
     }
 
-    protected _onStarted() : void {
+    protected _onStarted( _engine : Engine ) : void {
     }
 
     public frameUpdate( _engine : Engine, _delta : number ) : void {
@@ -69,8 +69,10 @@ export class NativeEventSystem extends System {
     protected _windowVisibilityChanged() {
         if ( document.visibilityState === 'visible' ) {
             this.onWindowEntered.emit();
+            Engine.shared.resume();
         } else {
             this.onWindowExited.emit();
+            Engine.shared.pause();
         }
     }
 

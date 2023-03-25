@@ -5,16 +5,16 @@ export class InputSystem extends System {
     protected _onAttached( _engine : Engine ) : void {
     }
 
-    protected _onDetached() : void {
+    protected _onDetached(_engine : Engine) : void {
     }
 
-    protected _onPaused() : void {
+    protected _onPaused(_engine : Engine) : void {
     }
 
-    protected _onResumed() : void {
+    protected _onResumed(_engine : Engine) : void {
     }
 
-    protected _onStarted() : void {
+    protected _onStarted(_engine : Engine) : void {
     }
 
     public frameUpdate( _engine : Engine, _delta : number ) : void {

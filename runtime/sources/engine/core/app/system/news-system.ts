@@ -119,19 +119,19 @@ export class NewsSystem extends System {
 
     }
 
-    protected _onDetached() : void {
+    protected _onDetached( _engine : Engine ) : void {
         this._channels.clear();
         this._audiences.clear();
         this._news.length = 0;
     }
 
-    protected _onPaused() : void {
+    protected _onPaused( _engine : Engine ) : void {
     }
 
-    protected _onResumed() : void {
+    protected _onResumed( _engine : Engine ) : void {
     }
 
-    protected _onStarted() : void {
+    protected _onStarted( _engine : Engine ) : void {
     }
 
     public frameUpdate( _engine : Engine, _delta : number ) : void {
@@ -159,9 +159,7 @@ export class NewsSystem extends System {
         return ESystemPriority.News;
     }
 
-    public secUpdate( _engine : Engine, _delta : number ) : void {
-
-    }
+    public secUpdate( _engine : Engine, _delta : number ) : void {}
 
     /**
      * Sending a pieces of news

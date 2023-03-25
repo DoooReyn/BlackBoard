@@ -1,8 +1,7 @@
-import { NextIDGenerator } from '../../util';
 import type { Engine } from '../engine';
 
 export enum ESystemPriority {
-    Input, News, MultiScreen, Render
+    Input, News, Stats, Director
 }
 
 /**
@@ -13,7 +12,7 @@ export abstract class System {
     private readonly _name : string;
 
     protected constructor() {
-        this._name = NextIDGenerator.nextWithKey( 'System' );
+        this._name = this.constructor.name;
     }
 
     public get name() {
@@ -49,7 +48,7 @@ export abstract class System {
         engine.onResumedSignal.disconnect( this._onResumed, this );
         engine.onSecUpdateSignal.disconnect( this.secUpdate, this );
         engine.onFrameUpdateSignal.disconnect( this.frameUpdate, this );
-        this._onDetached();
+        this._onDetached( engine );
     }
 
     /**
@@ -72,6 +71,7 @@ export abstract class System {
      * - Automatically called by engine instance
      * - Get the initialization work done here
      * @param {Engine} engine
+     * @protected
      */
     protected abstract _onAttached( engine : Engine ) : void;
 
@@ -79,27 +79,32 @@ export abstract class System {
      * Detached from engine
      * - Automatically called by engine instance
      * - Get destruction work done here
+     * @param {Engine} engine
+     * @protected
      */
-    protected abstract _onDetached() : void;
+    protected abstract _onDetached( engine : Engine ) : void;
 
     /**
      * Called when engine started
      * - Automatically called by engine instance
+     * @param {Engine} engine
      * @protected
      */
-    protected abstract _onStarted() : void;
+    protected abstract _onStarted( engine : Engine ) : void;
 
     /**
      * Called when engine paused
      * - Automatically called by engine instance
+     * @param {Engine} engine
      * @protected
      */
-    protected abstract _onPaused() : void;
+    protected abstract _onPaused( engine : Engine ) : void;
 
     /**
      * Called when engine resumed
      * - Automatically called by engine instance
+     * @param {Engine} engine
      * @protected
      */
-    protected abstract _onResumed() : void;
+    protected abstract _onResumed( engine : Engine ) : void;
 }

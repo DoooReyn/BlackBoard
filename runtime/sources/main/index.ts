@@ -1,7 +1,9 @@
 import {
-    Engine, logger, NativeEventSystem, NewsSystem, RenderSystem, Scene, System,
+    Engine, logger, NativeEventSystem, NewsSystem, Scene, StatsSystem, System,
 } from '../engine';
-import { Director } from '../engine/core/app/internal/director';
+import {
+    Director, TStackOperation,
+} from '../engine/core/app/internal/director';
 
 new Engine( {
                 canvasFallbacks: [ '#black-board', '.black-board', 'canvas' ],
@@ -17,14 +19,17 @@ new Engine( {
                 systems: [
                     NativeEventSystem.shared,
                     NewsSystem.shared,
-                    RenderSystem.shared,
+                    StatsSystem.shared,
+                    Director.shared,
                 ],
-                onStarted: ( engine : Engine ) => {
+                onStarted: ( _engine : Engine ) => {
+                    Director.shared.onStackSignal.connect( ( type : TStackOperation, current : Scene, prev : Scene ) => {
+                        logger.info( 'SceneStack Operation: ', type, current.name, prev?.name );
+                    } );
                     Director.shared.runScene( new Scene() );
-                    logger.debug( `Engine<${ engine.state }>, Scene<${ Director.shared.runningScene?.name }>` );
                 },
                 onSystemMounted: ( engine : Engine, system : System ) => {
-                    logger.debug( `Engine<${ engine.state }>, System<${ system.name },${ system.priority }>` );
+                    logger.debug( `System<${ system.name }> Priority<${ system.priority }>` );
                     if ( system instanceof NativeEventSystem ) {
                         // Applying your own screen adaption strategy here
                         NativeEventSystem.shared.onWindowResized.connect( () => {
@@ -33,6 +38,7 @@ new Engine( {
                             } = document.documentElement;
                             engine.root.transform.pivot.set( width * 0.5, height * 0.5 );
                             engine.renderer.resize( width, height );
+                            logger.info( 'screen resized', width, height );
                         } );
                         // Applying at once
                         NativeEventSystem.shared.onWindowResized.emit();
