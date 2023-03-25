@@ -12,3 +12,4 @@ export * from './key-map';
 export * from './singleton';
 export * from './signal';
 export * from './state';
+export * from './time-counter';

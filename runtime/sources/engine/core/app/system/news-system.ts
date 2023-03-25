@@ -3,7 +3,6 @@ import type { Audience } from '../../event/audience';
 import { Channel } from '../../event/channel';
 import { KeyMap, Signals } from '../../util';
 import { Engine } from '../engine';
-import { SecUpdateValue } from '../internal/sec-update-value';
 import { ESystemPriority, System } from './system';
 
 /**
@@ -21,7 +20,6 @@ export class NewsSystem extends System {
     protected _onVisibilityChanged : () => void;
     protected _onWindowSizeChanged : () => void;
     private _sizeChanged : boolean;
-    private _lastTime : number;
     /**
      * Channels of the news center
      * @type {KeyMap<Channel>}
@@ -46,7 +44,6 @@ export class NewsSystem extends System {
 
         this._news = [];
         this._sizeChanged = false;
-        this._lastTime = SecUpdateValue.now;
         this._channels = new KeyMap<Channel>();
         this._audiences = new KeyMap<Audience>();
         this.onResizeSignal = new Signals<() => void>();
@@ -124,9 +121,7 @@ export class NewsSystem extends System {
         this._news.push( [ channel, data ] );
     }
 
-    protected override _onAttached( engine : Engine ) {
-        super._onAttached( engine );
-
+    protected override _onAttached( _engine : Engine ) {
         this._sizeChanged = true;
 
         this._onVisibilityChanged = () => {
@@ -161,26 +156,7 @@ export class NewsSystem extends System {
     protected _onStarted() : void {
     }
 
-    public get priority() : number {
-        return ESystemPriority.News;
-    }
-
-    public update( _delta : number ) : void {
-        if ( SecUpdateValue.now - this._lastTime >= 1000 ) {
-            this._lastTime = SecUpdateValue.now;
-            if ( this._sizeChanged ) {
-                this._sizeChanged = false;
-
-                const {
-                    clientWidth: width, clientHeight: height,
-                } = document.documentElement;
-                this.app.stage.transform.pivot.set( width * 0.5, height * 0.5 );
-                this.app.renderer.resize( width, height );
-                this.push( ESystemEvent.Resize, null );
-                this.onResizeSignal.emit();
-            }
-        }
-
+    public frameUpdate( _engine : Engine, _delta : number ) : void {
         if ( this._news.length > 0 ) {
             let sent = [];
 
@@ -198,6 +174,24 @@ export class NewsSystem extends System {
                     this._news.splice( v, 1 );
                 } );
             }
+        }
+    }
+
+    public get priority() : number {
+        return ESystemPriority.News;
+    }
+
+    public secUpdate( engine : Engine, _delta : number ) : void {
+        if ( this._sizeChanged ) {
+            this._sizeChanged = false;
+
+            const {
+                clientWidth: width, clientHeight: height,
+            } = document.documentElement;
+            engine.root.transform.pivot.set( width * 0.5, height * 0.5 );
+            engine.renderer.resize( width, height );
+            this.push( ESystemEvent.Resize, null );
+            this.onResizeSignal.emit();
         }
     }
 

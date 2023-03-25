@@ -1,5 +1,5 @@
 import { NextIDGenerator } from '../../util';
-import type { Engine, TEngineActions } from '../engine';
+import type { Engine } from '../engine';
 
 export enum ESystemPriority {
     Input, News, MultiScreen, Render
@@ -10,18 +10,11 @@ export enum ESystemPriority {
  * It is recommended to specify well-managed priority for them.
  */
 export abstract class System {
-    /**
-     * Reference of engine instance
-     * @type {Engine}
-     * @protected
-     */
-    public engine : Engine;
+    private readonly _name : string;
 
     protected constructor() {
         this._name = NextIDGenerator.nextWithKey( 'System' );
     }
-
-    private readonly _name : string;
 
     public get name() {
         return this._name;
@@ -34,38 +27,45 @@ export abstract class System {
     public abstract get priority() : number;
 
     /**
-     * The instance of PixiJS Application
-     * @returns {Application | undefined}
-     * @protected
+     * Attached to the engine instance
+     * @param {Engine} engine
      */
-    protected get app() {
-        // @ts-ignore
-        return this?.engine?._app;
+    public attach( engine : Engine ) {
+        engine.onStartedSignal.connect( this._onStarted, this );
+        engine.onPausedSignal.connect( this._onPaused, this );
+        engine.onResumedSignal.connect( this._onResumed, this );
+        engine.onSecUpdate.connect( this.secUpdate, this );
+        engine.onFrameUpdate.connect( this.frameUpdate, this );
+        this._onAttached( engine );
     }
 
     /**
-     * Notice comes from engine instance.
-     * - It should be called internally by engine in general.
-     * @param {TEngineActions} action
-     * @param args
+     * Detach from the engine instance
+     * @param {Engine} engine
      */
-    public notify( action : TEngineActions, ...args : any[] ) {
-        if ( typeof action === 'string' ) {
-            // @ts-ignore
-            const api = this[ `_${ action }` ];
-            if ( typeof api === 'function' ) {
-                // @ts-ignore
-                api.apply( this, args );
-            }
-        }
+    public detach( engine : Engine ) {
+        engine.onStartedSignal.disconnect( this._onStarted, this );
+        engine.onPausedSignal.disconnect( this._onPaused, this );
+        engine.onResumedSignal.disconnect( this._onResumed, this );
+        engine.onSecUpdate.disconnect( this.secUpdate, this );
+        engine.onFrameUpdate.disconnect( this.frameUpdate, this );
+        this._onDetached();
     }
 
     /**
-     * Updating loop
+     * Updating loop in frame
      * - Automatically called by engine instance
+     * @param engine
      * @param {number} delta
      */
-    public abstract update( delta : number ) : void;
+    public abstract frameUpdate( engine : Engine, delta : number ) : void;
+
+    /**
+     * Updating loop in second
+     * @param {Engine} engine
+     * @param {number} delta
+     */
+    public abstract secUpdate( engine : Engine, delta : number ) : void;
 
     /**
      * Attached to engine
@@ -73,9 +73,7 @@ export abstract class System {
      * - Get the initialization work done here
      * @param {Engine} engine
      */
-    protected _onAttached( engine : Engine ) {
-        this.engine = engine;
-    }
+    protected abstract _onAttached( engine : Engine ) : void;
 
     /**
      * Detached from engine

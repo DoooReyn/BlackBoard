@@ -1,27 +1,16 @@
 import {
-    Application,
-    IApplicationOptions,
-    IRenderer,
+    Application, Container, IApplicationOptions, IRenderer,
 } from 'pixi.js';
 import {
-    logger, Lovely, prefills, progressive, Signals, State, TStates,
+    logger, Lovely, prefills, progressive, Signals, State, TimeCounter, TStates,
 } from '../util';
 import { System } from './system/system';
 
 /**
+ *
  * Engine states
  */
 type TEngineStates = TStates | 'running' | 'paused';
-
-/**
- * Engine actions
- */
-export type TEngineActions =
-    'onStarted'
-    | 'onPaused'
-    | 'onResumed'
-    | 'onAttached'
-    | 'onDetached'
 
 /**
  * Options for constructing engine instance
@@ -43,8 +32,7 @@ export interface IEngineOptions extends IApplicationOptions {
 }
 
 export type TEngineTrigger = ( engine : Engine, ...args : any[] ) => void;
-
-export let EngineInstance : Engine = null;
+export type TEngineUpdate = ( engine : Engine, delta : number ) => void;
 
 /**
  * Engine
@@ -57,8 +45,13 @@ export class Engine {
     public onResumedSignal : Signals<TEngineTrigger>;
     public onSystemMountedSignal : Signals<TEngineTrigger>;
     public onSystemUnmountedSignal : Signals<TEngineTrigger>;
+    public onSecUpdate : Signals<TEngineUpdate>;
+    public onFrameUpdate : Signals<TEngineUpdate>;
 
-    public renderer: IRenderer;
+    public renderer : IRenderer;
+    public root: Container;
+
+    private _timeCounter : TimeCounter;
 
     /**
      * Updating systems
@@ -98,8 +91,6 @@ export class Engine {
     private readonly _designHeight : number;
 
     public constructor( options : IEngineOptions ) {
-        EngineInstance = this;
-
         prefills( options, [ [ 'debug', false ] ] );
 
         if ( !options.view && options.canvasFallbacks ) {
@@ -118,6 +109,7 @@ export class Engine {
         this._designHeight = options.height;
         this._systems = [];
         this._debug = options.debug;
+        this._timeCounter = new TimeCounter();
         this._lovely = new Lovely();
 
         // Construction of PixiJs application instance
@@ -128,12 +120,16 @@ export class Engine {
         this._app.ticker.maxFPS = options.maxFPS;
         this._app.ticker.add( this._update, this );
         this.renderer = this._app.renderer;
+        this.root = this._app.stage;
 
         // Initializing states for engine instance
-        this._state = new State<TEngineStates>( 'primitive', [
-            [ 'primitive', 'running', this._onStarted, this ],
-            [ 'running', 'paused', this._onPaused, this ],
-            [ 'paused', 'running', this._onResumed, this ],
+        this._state = new State<TEngineStates>( 'primitive', [ [ 'primitive',
+                                                                 'running',
+                                                                 this._onStarted,
+                                                                 this,
+        ], [ 'running', 'paused', this._onPaused, this,
+        ], [ 'paused', 'running', this._onResumed, this,
+        ],
         ] );
 
         // Keeping stage in the center of screen
@@ -145,6 +141,8 @@ export class Engine {
         this.onResumedSignal = new Signals<TEngineTrigger>();
         this.onSystemMountedSignal = new Signals<TEngineTrigger>();
         this.onSystemUnmountedSignal = new Signals<TEngineTrigger>();
+        this.onSecUpdate = new Signals<TEngineUpdate>();
+        this.onFrameUpdate = new Signals<TEngineUpdate>();
         options.onStarted && this.onStartedSignal.connect( options.onStarted );
         options.onPaused && this.onPausedSignal.connect( options.onPaused );
         options.onResumed && this.onResumedSignal.connect( options.onResumed );
@@ -155,7 +153,6 @@ export class Engine {
         if ( options.systems && options.systems.length > 0 ) {
             this.mount( ...options.systems );
         }
-
     }
 
     public get designWidth() : number {
@@ -200,7 +197,7 @@ export class Engine {
             if ( this._systems.indexOf( sys ) === -1 ) {
                 this._systems.push( sys );
                 this._lovely.trick();
-                sys.notify( 'onAttached', this );
+                sys.attach( this );
                 this.onSystemMountedSignal.emit( this, sys );
             }
         }
@@ -216,7 +213,7 @@ export class Engine {
         if ( i > -1 ) {
             this._systems.splice( i, 1 );
             this._lovely.trick();
-            sys.notify( 'onDetached' );
+            sys.detach( this );
             this.onSystemUnmountedSignal.emit( this, sys );
         }
     }
@@ -248,7 +245,6 @@ export class Engine {
      */
     protected _onStarted() {
         this._app.ticker.start();
-        this._systems.forEach( v => v.notify( 'onStarted' ) );
         this.onStartedSignal.emit( this );
     }
 
@@ -258,7 +254,6 @@ export class Engine {
      */
     protected _onPaused() {
         this._app.ticker.stop();
-        this._systems.forEach( v => v.notify( 'onPaused' ) );
         this.onPausedSignal.emit( this );
     }
 
@@ -268,7 +263,6 @@ export class Engine {
      */
     protected _onResumed() {
         this._app.ticker.start();
-        this._systems.forEach( v => v.notify( 'onResumed' ) );
         this.onResumedSignal.emit( this );
     }
 
@@ -288,6 +282,12 @@ export class Engine {
             } );
         }
 
-        this._systems.forEach( v => v.update( delta ) );
+        const elapsed = this._timeCounter.elapsed;
+        if ( elapsed >= 1000 ) {
+            this._timeCounter.update();
+            this.onSecUpdate.emit( this, elapsed );
+        }
+
+        this.onFrameUpdate.emit( this, delta );
     }
 }

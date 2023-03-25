@@ -41,10 +41,8 @@ export class RenderSystem extends System {
     }
 
     protected override _onAttached( engine : Engine ) {
-        super._onAttached( engine );
-
-        this._stats.setParent( this.app.stage );
-        this._stats.init( this.app.renderer as Renderer );
+        this._stats.setParent( engine.root );
+        this._stats.init( engine.renderer as Renderer );
         engine.debug ? this.showStats() : this.hideStats();
 
         this.director = Director.shared;
@@ -63,11 +61,14 @@ export class RenderSystem extends System {
     protected _onStarted() : void {
     }
 
+    public frameUpdate( _engine : Engine, _delta : number ) : void {
+        this._stats.update();
+    }
+
     public get priority() : number {
         return ESystemPriority.Render;
     }
 
-    public update( _delta : number ) : void {
-        this._stats.update();
+    public secUpdate( _engine : Engine, _delta : number ) : void {
     }
 }

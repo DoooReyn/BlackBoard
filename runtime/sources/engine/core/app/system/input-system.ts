@@ -17,6 +17,6 @@ export class InputSystem extends System {
         return ESystemPriority.Input;
     }
 
-    public update( _delta : number ) : void {
+    public frameUpdate( _delta : number ) : void {
     }
 }
