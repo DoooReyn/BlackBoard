@@ -29,6 +29,8 @@ export interface IEngineOptions extends IApplicationOptions {
     onResumed? : TEngineTrigger;
     onSystemMounted? : TEngineTrigger;
     onSystemUnmounted? : TEngineTrigger;
+    onSecUpdate? : TEngineUpdate;
+    onFrameUpdate? : TEngineUpdate;
 }
 
 export type TEngineTrigger = ( engine : Engine, ...args : any[] ) => void;
@@ -46,8 +48,8 @@ export class Engine {
     public onResumedSignal : Signals<TEngineTrigger>;
     public onSystemMountedSignal : Signals<TEngineTrigger>;
     public onSystemUnmountedSignal : Signals<TEngineTrigger>;
-    public onSecUpdate : Signals<TEngineUpdate>;
-    public onFrameUpdate : Signals<TEngineUpdate>;
+    public onSecUpdateSignal : Signals<TEngineUpdate>;
+    public onFrameUpdateSignal : Signals<TEngineUpdate>;
 
     public renderer : IRenderer;
     public root : Container;
@@ -145,13 +147,15 @@ export class Engine {
         this.onResumedSignal = new Signals<TEngineTrigger>();
         this.onSystemMountedSignal = new Signals<TEngineTrigger>();
         this.onSystemUnmountedSignal = new Signals<TEngineTrigger>();
-        this.onSecUpdate = new Signals<TEngineUpdate>();
-        this.onFrameUpdate = new Signals<TEngineUpdate>();
+        this.onSecUpdateSignal = new Signals<TEngineUpdate>();
+        this.onFrameUpdateSignal = new Signals<TEngineUpdate>();
         options.onStarted && this.onStartedSignal.connect( options.onStarted );
         options.onPaused && this.onPausedSignal.connect( options.onPaused );
         options.onResumed && this.onResumedSignal.connect( options.onResumed );
         options.onSystemMounted && this.onSystemMountedSignal.connect( options.onSystemMounted );
         options.onSystemUnmounted && this.onSystemUnmountedSignal.connect( options.onSystemUnmounted );
+        options.onSecUpdate && this.onSecUpdateSignal.connect( options.onSecUpdate );
+        options.onFrameUpdate && this.onFrameUpdateSignal.connect( options.onFrameUpdate );
 
         // Mounting systems
         if ( options.systems && options.systems.length > 0 ) {
@@ -289,9 +293,9 @@ export class Engine {
         const elapsed = this._timeCounter.elapsed;
         if ( elapsed >= 1000 ) {
             this._timeCounter.update();
-            this.onSecUpdate.emit( this, elapsed );
+            this.onSecUpdateSignal.emit( this, elapsed );
         }
 
-        this.onFrameUpdate.emit( this, delta );
+        this.onFrameUpdateSignal.emit( this, delta );
     }
 }

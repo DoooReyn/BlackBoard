@@ -34,8 +34,8 @@ export abstract class System {
         engine.onStartedSignal.connect( this._onStarted, this );
         engine.onPausedSignal.connect( this._onPaused, this );
         engine.onResumedSignal.connect( this._onResumed, this );
-        engine.onSecUpdate.connect( this.secUpdate, this );
-        engine.onFrameUpdate.connect( this.frameUpdate, this );
+        engine.onSecUpdateSignal.connect( this.secUpdate, this );
+        engine.onFrameUpdateSignal.connect( this.frameUpdate, this );
         this._onAttached( engine );
     }
 
@@ -47,8 +47,8 @@ export abstract class System {
         engine.onStartedSignal.disconnect( this._onStarted, this );
         engine.onPausedSignal.disconnect( this._onPaused, this );
         engine.onResumedSignal.disconnect( this._onResumed, this );
-        engine.onSecUpdate.disconnect( this.secUpdate, this );
-        engine.onFrameUpdate.disconnect( this.frameUpdate, this );
+        engine.onSecUpdateSignal.disconnect( this.secUpdate, this );
+        engine.onFrameUpdateSignal.disconnect( this.frameUpdate, this );
         this._onDetached();
     }
 
