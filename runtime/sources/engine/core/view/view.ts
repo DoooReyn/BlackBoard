@@ -1,6 +1,6 @@
 import { Container } from 'pixi.js';
-import { Audience } from '../../event/audience';
-import { NextIDGenerator } from '../../util';
+import { Audience } from '../event/audience';
+import { NextIDGenerator } from '../util';
 import { NewsSystem } from '../system/news-system';
 
 export abstract class View extends Container {

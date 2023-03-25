@@ -3,7 +3,7 @@ import {
 } from 'pixi.js';
 import {
     logger, Lovely, prefills, progressive, Signals, State, TimeCounter, TStates,
-} from '../util';
+} from './util';
 import { System } from './system/system';
 
 /**

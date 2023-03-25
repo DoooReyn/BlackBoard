@@ -1,6 +1,6 @@
-import type { Audience } from '../../event/audience';
-import { Channel } from '../../event/channel';
-import { KeyMap } from '../../util';
+import type { Audience } from '../event/audience';
+import { Channel } from '../event/channel';
+import { KeyMap } from '../util';
 import { Engine } from '../engine';
 import { ESystemPriority, System } from './system';
 

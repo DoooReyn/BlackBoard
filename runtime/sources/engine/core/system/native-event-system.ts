@@ -1,5 +1,5 @@
-import { ENativeEvent } from '../../../enum';
-import { Signals } from '../../util';
+import { ENativeEvent } from '../../enum';
+import { Signals } from '../util';
 import { Engine } from '../engine';
 import { System } from './system';
 

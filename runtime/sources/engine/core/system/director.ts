@@ -1,4 +1,4 @@
-import { Signals } from '../../util';
+import { Signals } from '../util';
 import { Engine } from '../engine';
 import { ESystemPriority, System } from './system';
 import { Scene } from '../view/scene';

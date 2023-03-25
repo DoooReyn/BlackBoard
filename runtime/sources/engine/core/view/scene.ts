@@ -1,4 +1,4 @@
-import { logger, Signals } from '../../util';
+import { logger, Signals } from '../util';
 import { NativeEventSystem } from '../system/native-event-system';
 import { View } from './view';
 
