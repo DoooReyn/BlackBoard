@@ -1,21 +1,15 @@
 /**
  * A value should be updated in per second
  */
+import { TimeCounter } from '../../util';
+
 export class SecUpdateValue {
     protected _count : number;
-    protected _lastTime : number;
+    protected _timeCounter : TimeCounter;
 
     constructor() {
         this._count = this._value = 0;
-        this._lastTime = SecUpdateValue.now;
-    }
-
-    /**
-     * Current time
-     * @returns {number}
-     */
-    public static get now() {
-        return Date.now();
+        this._timeCounter = new TimeCounter();
     }
 
     private _value : number;
@@ -32,10 +26,10 @@ export class SecUpdateValue {
      * Updating in per second
      */
     update() : void {
-        if ( SecUpdateValue.now - this._lastTime >= 1000 ) {
+        if ( this._timeCounter.elapsed >= 1000 ) {
             this._value = this._count;
             this._count = 0;
-            this._lastTime = SecUpdateValue.now;
+            this._timeCounter.update();
         }
     }
 }
