@@ -1,9 +1,7 @@
 import {
-    Engine, logger, NativeEventSystem, NewsSystem, Scene, StatsSystem, System,
+    Director, Engine, logger, NativeEventSystem, NewsSystem, Scene, StatsSystem,
+    System, TStackOperation,
 } from '../engine';
-import {
-    Director, TStackOperation,
-} from '../engine/core/app/internal/director';
 
 new Engine( {
                 canvasFallbacks: [ '#black-board', '.black-board', 'canvas' ],
@@ -44,5 +42,6 @@ new Engine( {
                         NativeEventSystem.shared.onWindowResized.emit();
                     }
                 },
-            } ).run();
+            } )
+    .run();
 

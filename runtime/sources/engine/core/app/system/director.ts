@@ -1,7 +1,7 @@
 import { Signals } from '../../util';
 import { Engine } from '../engine';
-import { ESystemPriority, System } from '../system/system';
-import { Scene } from './scene';
+import { ESystemPriority, System } from './system';
+import { Scene } from '../view/scene';
 
 export type TStackOperation = 'run' | 'push' | 'pop';
 export type TStackTrigger = ( type : TStackOperation, current : Scene, prev : Scene | null ) => void;
