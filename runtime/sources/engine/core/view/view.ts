@@ -1,7 +1,7 @@
 import { Container } from 'pixi.js';
 import { Audience } from '../event/audience';
-import { NextIDGenerator } from '../util';
 import { NewsSystem } from '../system/news-system';
+import { NextIDGenerator } from '../util';
 
 export abstract class View extends Container {
     protected _audience : Audience;
@@ -37,6 +37,8 @@ export abstract class View extends Container {
         this._onReset();
         this._audience = null;
     }
+
+    protected onWindowResized() {}
 
     protected abstract _onDataReceived( channel : string, data : any, next : Function ) : void;
 }

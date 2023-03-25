@@ -1,5 +1,5 @@
-import { logger, Signals } from '../util';
 import { NativeEventSystem } from '../system/native-event-system';
+import { logger, Signals } from '../util';
 import { View } from './view';
 
 export type TSceneOperation = 'squeezed' | 'restored' | 'purged';
@@ -63,15 +63,11 @@ export class Scene extends View {
 
     protected override _onInit() {
         this.onStackOperatedSignal.connect( this._onSqueezed, this );
-        NativeEventSystem.shared.onWindowResized.connect( this._onWindowResized, this );
+        NativeEventSystem.shared.onWindowResized.connect( this.onWindowResized, this );
     }
 
     protected override _onReset() {
         this.onStackOperatedSignal.disconnect( this._onSqueezed, this );
-        NativeEventSystem.shared.onWindowResized.disconnect( this._onWindowResized, this );
-    }
-
-    protected _onWindowResized() {
-        logger.debug( this.name, 'window resized' );
+        NativeEventSystem.shared.onWindowResized.disconnect( this.onWindowResized, this );
     }
 }
