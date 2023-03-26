@@ -1,4 +1,4 @@
-import { Container, Renderer, Text } from 'pixi.js';
+import { Container, Graphics, Renderer, Text } from 'pixi.js';
 import { Engine } from '../engine';
 import { ESystemPriority, System } from './system';
 
@@ -12,6 +12,7 @@ class Stats extends Container {
     private _textFPS : Text;
     private _textDrawcall : Text;
     private _textTextures : Text;
+    private _frameGrphics : Graphics;
 
     constructor() {
         super();
@@ -19,12 +20,18 @@ class Stats extends Container {
         this._textFPS = makeText();
         this._textDrawcall = makeText();
         this._textTextures = makeText();
+        this._frameGrphics = new Graphics();
+        this._frameGrphics.setParent( this );
         this._textFPS.setParent( this );
         this._textDrawcall.setParent( this );
         this._textTextures.setParent( this );
     }
 
     init() {
+        this._frameGrphics.beginFill( 0x99e329, 0.2 );
+        this._frameGrphics.lineStyle( { width: 0 } );
+        this._frameGrphics.drawRect( 0, 0, 64, 64 );
+        this._frameGrphics.endFill();
         [
             this._textFPS, this._textDrawcall, this._textTextures,
         ].forEach( ( v, i ) => {
@@ -64,18 +71,14 @@ export class StatsSystem extends System {
      * Showing the container of Stats
      */
     public showStats() {
-        this._stats && (
-            this._stats.renderable = true
-        );
+        this._stats && ( this._stats.renderable = true );
     }
 
     /**
      * Hiding the container of Stats
      */
     public hideStats() {
-        this._stats && (
-            this._stats.renderable = false
-        );
+        this._stats && ( this._stats.renderable = false );
     }
 
     protected _onAttached( engine : Engine ) : void {
