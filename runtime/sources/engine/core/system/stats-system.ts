@@ -12,7 +12,7 @@ class Stats extends Container {
     private _textFPS : Text;
     private _textDrawcall : Text;
     private _textTextures : Text;
-    private _frameGrphics : Graphics;
+    private _frameGraphics : Graphics;
 
     constructor() {
         super();
@@ -20,18 +20,18 @@ class Stats extends Container {
         this._textFPS = makeText();
         this._textDrawcall = makeText();
         this._textTextures = makeText();
-        this._frameGrphics = new Graphics();
-        this._frameGrphics.setParent( this );
+        this._frameGraphics = new Graphics();
+        this._frameGraphics.setParent( this );
         this._textFPS.setParent( this );
         this._textDrawcall.setParent( this );
         this._textTextures.setParent( this );
     }
 
     init() {
-        this._frameGrphics.beginFill( 0x99e329, 0.2 );
-        this._frameGrphics.lineStyle( { width: 0 } );
-        this._frameGrphics.drawRect( 0, 0, 64, 64 );
-        this._frameGrphics.endFill();
+        this._frameGraphics.beginFill( 0x99e329, 0.2 );
+        this._frameGraphics.lineStyle( { width: 0 } );
+        this._frameGraphics.drawRect( 0, 0, 64, 64 );
+        this._frameGraphics.endFill();
         [
             this._textFPS, this._textDrawcall, this._textTextures,
         ].forEach( ( v, i ) => {

@@ -1,10 +1,10 @@
 import {
-    Application, Container, IApplicationOptions, IRenderer,
+    Application, Container, IApplicationOptions, IRenderer, Ticker,
 } from 'pixi.js';
+import { System } from './system/system';
 import {
     logger, Lovely, prefills, progressive, Signals, State, TimeCounter, TStates,
 } from './util';
-import { System } from './system/system';
 
 /**
  *
@@ -53,6 +53,7 @@ export class Engine {
 
     public renderer : IRenderer;
     public root : Container;
+    public ticker: Ticker;
 
     private _timeCounter : TimeCounter;
 
@@ -96,7 +97,11 @@ export class Engine {
     public constructor( options : IEngineOptions ) {
         Engine.shared = this;
 
-        prefills( options, [ [ 'debug', false ] ] );
+        prefills( options, [
+            [ 'debug', false ],
+            [ 'minFPS', 30 ],
+            [ 'maxFPS', 0 ],
+        ] );
 
         if ( !options.view && options.canvasFallbacks ) {
             const {
@@ -125,6 +130,7 @@ export class Engine {
         this._app.ticker.maxFPS = options.maxFPS;
         this._app.ticker.add( this._update, this );
         this.renderer = this._app.renderer;
+        this.ticker = this._app.ticker;
         this.root = this._app.stage;
 
         // Initializing states for engine instance
