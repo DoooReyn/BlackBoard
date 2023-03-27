@@ -132,6 +132,7 @@ export class Engine {
         this.renderer = this._app.renderer;
         this.ticker = this._app.ticker;
         this.root = this._app.stage;
+        this.root.sortableChildren = true;
 
         // Initializing states for engine instance
         this._state = new State<TEngineStates>( 'primitive', [
