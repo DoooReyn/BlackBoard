@@ -85,6 +85,7 @@ export class StatsSystem extends System {
         if ( engine.debug && !this._stats ) {
             this._stats = new Stats();
             this._stats.setParent( engine.root );
+            this._stats.zIndex = Number.MAX_SAFE_INTEGER;
             this._stats.init();
             this._bindRenderer( engine );
         }
@@ -119,7 +120,6 @@ export class StatsSystem extends System {
     public secUpdate( engine : Engine, _delta : number ) : void {
         if ( engine.debug && this._stats ) {
             this._stats.update( this._fps, this._drawcall, this._getRendererTextures( engine ) );
-            this._stats.position.set( engine.renderer.width * 0.5, engine.renderer.height * 0.5 );
             this._fps = 0;
             this._drawcall = 0;
         }
@@ -147,7 +147,7 @@ export class StatsSystem extends System {
     }
 
     private _getRendererTextures( engine : Engine ) {
-        if ( 'textures' in engine.renderer ) {
+        if ( 'texture' in engine.renderer ) {
             //@ts-ignore
             return engine.renderer.texture.managedTextures.length;
         }
