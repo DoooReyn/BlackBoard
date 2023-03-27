@@ -1,7 +1,8 @@
 import { Container } from 'pixi.js';
+import { Engine } from '../engine';
 import { Audience } from '../event/audience';
 import { NewsSystem } from '../system/news-system';
-import { NextIDGenerator } from '../util';
+import { logger, NextIDGenerator } from '../util';
 
 export abstract class View extends Container {
     protected _audience : Audience;
@@ -14,6 +15,26 @@ export abstract class View extends Container {
         this.on( 'added', this._onInit, this );
         this.on( 'removed', this._onReset, this );
         this.on( 'destroyed', this._onCleanup, this );
+    }
+
+    static get screenSize() {
+        return Engine.shared.renderer.screen;
+    }
+
+    public show() {
+        this.visible = true;
+    }
+
+    public hide() {
+        this.visible = false;
+    }
+
+    public renderIn() {
+        this.renderable = true;
+    }
+
+    public renderOut() {
+        this.renderable = false;
     }
 
     public secUpdate( _delta : number ) {
@@ -40,5 +61,8 @@ export abstract class View extends Container {
 
     protected onWindowResized() {}
 
-    protected abstract _onDataReceived( channel : string, data : any, next : Function ) : void;
+    protected _onDataReceived( channel : string, data : any, next : Function ) : void {
+        logger.debug( this.name, 'received', channel, data );
+        next();
+    }
 }

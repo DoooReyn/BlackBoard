@@ -1,25 +1,58 @@
-import { NativeEventSystem } from '../system/native-event-system';
-import { logger, Signals } from '../util';
+import { Assets } from 'pixi.js';
+import { Engine } from '../engine';
+import { Director, NativeEventSystem } from '../system';
+import {
+    clone, ILoadingItems, Loading, logger, prefills, Signals,
+} from '../util';
 import { View } from './view';
 
 export type TSceneOperation = 'squeezed' | 'restored' | 'purged';
 
 export type TSceneTrigger = ( type : TSceneOperation ) => void;
 
+export interface ISceneOptions {
+    preloads? : ILoadingItems;
+    transition? : string;
+    releases? : string[];
+}
+
 export class Scene extends View {
     public onStackOperatedSignal : Signals<TSceneTrigger>;
+    protected _options : ISceneOptions;
 
-    constructor() {
+    protected constructor( options : ISceneOptions ) {
         super();
 
+        this._options = clone( options );
         this.onStackOperatedSignal = new Signals<TSceneTrigger>();
-        this._running = false;
+        this._top = false;
     }
 
-    private _running : boolean;
+    private _top : boolean;
 
-    public get running() {
-        return this._running;
+    public get top() {
+        return this._top;
+    }
+
+    static async create( options : ISceneOptions ) : Promise<Scene> {
+        prefills( options, [
+            [ 'transition', 'default' ],
+        ] );
+
+        Director.shared.defaultLoadingLayer.progress = 0;
+        Director.shared.defaultLoadingLayer.show();
+        return new Promise( ( resolve ) => {
+            Loading.shared.load( options.preloads, ( progress ) => {
+                logger.info( progress );
+                Director.shared.defaultLoadingLayer.progress = progress;
+            }, ( result ) => {
+                logger.info( result );
+                setTimeout( () => {
+                    Director.shared.defaultLoadingLayer.hide();
+                    return resolve( new this( options ) );
+                }, 100 );
+            } );
+        } );
     }
 
     protected _onStackOperated( type : TSceneOperation ) {
@@ -37,17 +70,17 @@ export class Scene extends View {
     }
 
     protected _onSqueezed() {
-        this._running = false;
+        this._top = false;
         this.renderable = false;
     }
 
     protected _onRestored() {
-        this._running = true;
+        this._top = true;
         this.renderable = true;
     }
 
     protected _onPurged() {
-        this._running = false;
+        this._top = false;
         this.renderable = false;
         this.destroy();
     }
@@ -56,18 +89,23 @@ export class Scene extends View {
         this._onReset();
     }
 
-    protected _onDataReceived( channel : string, data : any, next : Function ) {
-        logger.debug( this.name, 'received', channel, data );
-        next();
-    }
-
     protected override _onInit() {
         this.onStackOperatedSignal.connect( this._onSqueezed, this );
         NativeEventSystem.shared.onWindowResized.connect( this.onWindowResized, this );
+        this.onWindowResized();
     }
 
     protected override _onReset() {
         this.onStackOperatedSignal.disconnect( this._onSqueezed, this );
         NativeEventSystem.shared.onWindowResized.disconnect( this.onWindowResized, this );
+        if ( this._options.releases ) {
+            Assets.unload( this._options.releases ).then( ( resources ) => {
+                logger.debug( this.name, 'release resources: ', resources );
+            } );
+        }
+    }
+
+    protected override onWindowResized() {
+        this.position.set( Engine.shared.renderer.width * 0.5, Engine.shared.renderer.height * 0.5 );
     }
 }

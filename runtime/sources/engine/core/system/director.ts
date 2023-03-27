@@ -1,13 +1,14 @@
-import { Signals } from '../util';
 import { Engine } from '../engine';
+import { Signals } from '../util';
+import { LoadingLayer, Scene } from '../view';
 import { ESystemPriority, System } from './system';
-import { Scene } from '../view/scene';
 
 export type TStackOperation = 'run' | 'push' | 'pop';
 export type TStackTrigger = ( type : TStackOperation, current : Scene, prev : Scene | null ) => void;
 
 export class Director extends System {
     public onStackSignal : Signals<TStackTrigger>;
+    public defaultLoadingLayer : LoadingLayer;
     protected _stack : Scene[];
 
     protected constructor() {
@@ -71,11 +72,15 @@ export class Director extends System {
     }
 
     protected _onAttached( _engine : Engine ) : void {
+        this.defaultLoadingLayer = new LoadingLayer();
+        _engine.root.addChild( this.defaultLoadingLayer );
     }
 
     protected _onDetached( _engine : Engine ) : void {
         this.purgeScene();
+        this.defaultLoadingLayer.destroy();
         this.onStackSignal.disconnectAll();
+        this.defaultLoadingLayer = null;
         this.onStackSignal = null;
     }
 

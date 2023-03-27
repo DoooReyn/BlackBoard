@@ -1,18 +1,22 @@
 import { Container, Graphics, Renderer, Text } from 'pixi.js';
+import { EZIndex } from '../../enum';
 import { Engine } from '../engine';
 import { ESystemPriority, System } from './system';
 
 function makeText() {
     return new Text( '', {
-        fontSize: 14, fill: 0x323130, fontFamily: 'Monaco', fontWeight: 'bold',
+        fontSize: 14,
+        fill: 0x323130,
+        fontFamily: 'Monaco',
+        fontWeight: 'bold',
     } );
 }
 
 class Stats extends Container {
-    private _textFPS : Text;
-    private _textDrawcall : Text;
-    private _textTextures : Text;
-    private _frameGraphics : Graphics;
+    private readonly _textFPS : Text;
+    private readonly _textDrawcall : Text;
+    private readonly _textTextures : Text;
+    private readonly _frameGraphics : Graphics;
 
     constructor() {
         super();
@@ -21,10 +25,7 @@ class Stats extends Container {
         this._textDrawcall = makeText();
         this._textTextures = makeText();
         this._frameGraphics = new Graphics();
-        this._frameGraphics.setParent( this );
-        this._textFPS.setParent( this );
-        this._textDrawcall.setParent( this );
-        this._textTextures.setParent( this );
+        this.addChild( this._frameGraphics, this._textFPS, this._textDrawcall, this._textTextures );
     }
 
     init() {
@@ -85,7 +86,7 @@ export class StatsSystem extends System {
         if ( engine.debug && !this._stats ) {
             this._stats = new Stats();
             this._stats.setParent( engine.root );
-            this._stats.zIndex = Number.MAX_SAFE_INTEGER;
+            this._stats.zIndex = EZIndex.Stats;
             this._stats.init();
             this._bindRenderer( engine );
         }

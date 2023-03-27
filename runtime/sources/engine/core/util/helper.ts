@@ -59,3 +59,31 @@ export function clone( o : any ) : any {
         return o;
     }
 }
+
+export function intersectionOfArrays( arr1 : any[], arr2 : any[] ) {
+    return arr1.filter( x => arr2.includes( x ) );
+}
+
+export function differenceOfArrays( arr1 : any[], arr2 : any[] ) {
+    return arr1.filter( x => !arr2.includes( x ) );
+}
+
+export function symmetricDifferenceOfArrays( arr1 : any[], arr2 : any[] ) {
+    return differenceOfArrays( arr1, arr2 ).concat( differenceOfArrays( arr2, arr1 ) );
+}
+
+export function validityOfMap( map : any ) {
+    return Object.keys( map ).filter( v => map[ v ] !== null && map[ v ] !== undefined );
+}
+
+export function removeInvalidOfMap( map : Record<string, any> ) {
+    let fails : string[] = null;
+    Object.keys( map ).forEach( k => {
+        if ( map[ k ] === undefined || map[ k ] === null ) {
+            if ( !fails ) fails = [];
+            fails.push( k );
+            delete map[ k ];
+        }
+    } );
+    return { passes: map, fails };
+}

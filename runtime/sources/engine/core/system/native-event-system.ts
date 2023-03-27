@@ -1,6 +1,6 @@
 import { ENativeEvent } from '../../enum';
-import { Signals } from '../util';
 import { Engine } from '../engine';
+import { logger, Signals } from '../util';
 import { System } from './system';
 
 export type TNativeEventTrigger = () => void;
@@ -31,6 +31,16 @@ export class NativeEventSystem extends System {
             NativeEventSystem._shared = new NativeEventSystem();
         }
         return NativeEventSystem._shared;
+    }
+
+    public applyScreenAdaption( engine : Engine ) {
+        const {
+            clientWidth: width, clientHeight: height,
+        } = document.documentElement;
+        engine.renderer.resize( width, height );
+        engine.root.transform.pivot.set( width * 0.5, height * 0.5 );
+        engine.root.position.set( width * 0.5, height * 0.5 );
+        logger.debug( 'screen resized', width, height );
     }
 
     protected _onAttached( _engine : Engine ) : void {
@@ -79,5 +89,4 @@ export class NativeEventSystem extends System {
     protected _onWindowSizeChanged() {
         this._sizeChanged = true;
     }
-
 }
