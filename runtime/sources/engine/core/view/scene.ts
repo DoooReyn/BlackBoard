@@ -4,6 +4,7 @@ import { Director, NativeEventSystem } from '../system';
 import {
     clone, ILoadingItems, Loading, logger, prefills, Signals,
 } from '../util';
+import { BaseLoadingLayer } from './base-loading-layer';
 import { View } from './view';
 
 export type TSceneOperation = 'squeezed' | 'restored' | 'purged';
@@ -11,9 +12,14 @@ export type TSceneOperation = 'squeezed' | 'restored' | 'purged';
 export type TSceneTrigger = ( type : TSceneOperation ) => void;
 
 export interface ISceneOptions {
+    // Assets to preload
     preloads? : ILoadingItems;
-    transition? : string;
+    // Assets to release
     releases? : string[];
+    // Custom loading layer
+    customLoadingLayer? : BaseLoadingLayer;
+    // Whether using loading layer or not
+    useLoadingLayer? : boolean;
 }
 
 export class Scene extends View {
@@ -36,21 +42,22 @@ export class Scene extends View {
 
     static async create( options : ISceneOptions ) : Promise<Scene> {
         prefills( options, [
-            [ 'transition', 'default' ],
+            [ 'useLoadingLayer', false ],
         ] );
 
-        Director.shared.defaultLoadingLayer.progress = 0;
-        Director.shared.defaultLoadingLayer.show();
         return new Promise( ( resolve ) => {
+            let loading : BaseLoadingLayer = null;
+            if ( options.useLoadingLayer ) {
+                loading = options.customLoadingLayer || Director.shared.loadingLayer;
+                loading.progress = 0;
+                loading.show();
+            }
             Loading.shared.load( options.preloads, ( progress ) => {
-                logger.info( progress );
-                Director.shared.defaultLoadingLayer.progress = progress;
+                loading && ( loading.progress = progress );
             }, ( result ) => {
                 logger.info( result );
-                setTimeout( () => {
-                    Director.shared.defaultLoadingLayer.hide();
-                    return resolve( new this( options ) );
-                }, 100 );
+                loading && loading.hide();
+                return resolve( new this( options ) );
             } );
         } );
     }

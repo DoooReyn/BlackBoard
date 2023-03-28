@@ -17,8 +17,7 @@ class TestScene extends Scene {
         eggHead.position.set( distance, 0 );
         flowerTop.anchor.set( 0.5 );
         eggHead.anchor.set( 0.5 );
-
-        this.addChild( flowerTop, eggHead );
+        this.addChild( eggHead, flowerTop );
     }
 }
 
@@ -30,9 +29,10 @@ function onSceneStackChanged( type : TStackOperation, current : Scene, prev : Sc
 export function onEngineStarted( _engine : Engine ) {
     Director.shared.onStackSignal.connect( onSceneStackChanged );
 
-    TestScene.create( { preloads: SCENE1_LOAD_ITEMS } ).then( ( scene ) => {
-        logger.info( scene );
-
+    TestScene.create( {
+                          preloads: SCENE1_LOAD_ITEMS,
+                          useLoadingLayer: true,
+                      } ).then( ( scene ) => {
         Director.shared.runScene( scene );
     } );
 }

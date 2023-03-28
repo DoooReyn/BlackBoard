@@ -1,6 +1,7 @@
-import { Container } from 'pixi.js';
+import { Container, FederatedPointerEvent } from 'pixi.js';
 import { Engine } from '../engine';
 import { Audience } from '../event/audience';
+import { NativeEventSystem } from '../system';
 import { NewsSystem } from '../system/news-system';
 import { logger, NextIDGenerator } from '../util';
 
@@ -19,6 +20,14 @@ export abstract class View extends Container {
 
     static get screenSize() {
         return Engine.shared.renderer.screen;
+    }
+
+    static get screenWidth() {
+        return View.screenSize.width;
+    }
+
+    static get screenHeight() {
+        return View.screenSize.height;
     }
 
     public show() {
@@ -43,9 +52,7 @@ export abstract class View extends Container {
     public frameUpdate( _delta : number ) {
     }
 
-    protected _onInit() : void {
-
-    }
+    protected _onInit() : void {}
 
     protected _onReset() : void {
         NewsSystem.shared.unregister( this._audience );
@@ -59,10 +66,22 @@ export abstract class View extends Container {
         this._audience = null;
     }
 
+    protected _listenWindowResizedEvent() {
+        NativeEventSystem.shared.onWindowResized.connect( this.onWindowResized, this );
+    }
+
+    protected _unListenWindowResizedEvent() {
+        NativeEventSystem.shared.onWindowResized.disconnect( this.onWindowResized, this );
+    }
+
     protected onWindowResized() {}
 
     protected _onDataReceived( channel : string, data : any, next : Function ) : void {
         logger.debug( this.name, 'received', channel, data );
         next();
+    }
+
+    protected _preventPointerThrough( e : FederatedPointerEvent ) {
+        e.stopPropagation();
     }
 }

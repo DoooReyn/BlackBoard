@@ -1,43 +1,53 @@
 - 更新循环
-  - 用户输入 
-  - 物理（物理世界的数据更新）
-  - 逻辑（只处理数据，不涉及视图等）
-  - 视图（根据逻辑处理获得的数据更新视图节点）
-  - 回收（引用计数，内存管理） 
+    - 用户输入
+    - 物理（物理世界的数据更新）
+    - 逻辑（只处理数据，不涉及视图等）
+    - 视图（根据逻辑处理获得的数据更新视图节点）
+    - 回收（引用计数，内存管理）
 
 - 应用
-  - 场景系统
-    - 组件
-  - 事件系统
-    - 注册（订阅）
-      - 订阅者（事件列表、事件回调、是否拦截） 
-      - 先注册、先触发
-      - 指定优先级
-    - 注销（支持自我注销）
-    - 分发
-  - 回收系统
-  - 更新系统
+    - 场景系统
+        - 组件
+    - 事件系统
+        - 注册（订阅）
+            - 订阅者（事件列表、事件回调、是否拦截）
+            - 先注册、先触发
+            - 指定优先级
+        - 注销（支持自我注销）
+        - 分发
+    - 回收系统
+    - 更新系统
+
 
 - 待办
-  - 从 NewsSystem 中分离出可见性事件和窗口尺寸变化事件
-  - 创建 Widget
-    - Area
-      - Widget
-      - Button
-        - Switcher
-        - Slider
-        - CheckBox
-        - RadioBox
-          - RadioButton
-        - ComboBox
-        - InputBox
-      - Image
-        - Progress
-        - ArcProgress
-      - Text
-        - PlainText 
-        - RichText
-      - ScrollBox
-        - Composite
-          - ScrollBar
-          - ScrollArea
+    - [x] 从 NewsSystem 中分离出可见性事件和窗口尺寸变化事件
+    - [x] 定位问题
+    - [ ] Scene Options
+        - [x] Loading 
+          - [x] 了解 PIXI 的加载流程
+          - [x] 转移到工具 util
+          - [x] 添加错误监听
+          - [x] 完善 Loading
+    - [ ] 创建 View
+        - 视图包装 Sprite
+        - 了解一下 PIXI 的渲染合批机制
+        - Area
+            - Widget
+            - Button
+                - Switcher
+                - Slider
+                - CheckBox
+                - RadioBox
+                    - RadioButton
+                - ComboBox
+                - InputBox
+            - Image
+                - Progress
+                - ArcProgress
+            - Text
+                - PlainText
+                - RichText
+            - ScrollBox
+                - Composite
+                    - ScrollBar
+                    - ScrollArea
