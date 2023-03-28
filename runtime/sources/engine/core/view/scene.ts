@@ -1,5 +1,4 @@
-import { Assets } from 'pixi.js';
-import { Engine } from '../engine';
+import { Assets, Rectangle } from 'pixi.js';
 import { Director, NativeEventSystem } from '../system';
 import {
     clone, ILoadingItems, Loading, logger, prefills, Signals,
@@ -113,6 +112,11 @@ export class Scene extends View {
     }
 
     protected override onWindowResized() {
-        this.position.set( Engine.shared.renderer.width * 0.5, Engine.shared.renderer.height * 0.5 );
+        const {
+            width,
+            height,
+        } = Scene.screenSize;
+        this.position.set( width * 0.5, height * 0.5 );
+        this.hitArea = new Rectangle( -width * 0.5, -height * 0.5, width, height );
     }
 }
