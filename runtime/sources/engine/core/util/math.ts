@@ -9,4 +9,8 @@ export namespace math {
     export function equals( a : number, b : number, precision : number = 6 ) {
         return Math.abs( a - b ) * Math.pow( 10, precision ) <= 1;
     }
+
+    export function clamp( v : number, min : number, max : number ) {
+        return Math.max( min, Math.min( v, max ) );
+    }
 }
