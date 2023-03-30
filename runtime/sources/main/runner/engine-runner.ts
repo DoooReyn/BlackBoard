@@ -1,9 +1,8 @@
 import { Sprite, Texture } from 'pixi.js';
 import {
-    CheckBox, Director, Engine, ISceneOptions, logger, LongPressButton,
+    CheckBox, Director, Engine, ISceneOptions, LineBar, logger, LongPressButton,
     NativeEventSystem, Scene, System, TStackOperation,
 } from '../../engine';
-import { ProgressBar } from '../../engine/core/view/progress-bar';
 import { SCENE1_LOAD_ITEMS } from '../config/scene1.loaditems.config';
 
 class TestScene extends Scene {
@@ -11,52 +10,52 @@ class TestScene extends Scene {
     protected constructor( options : ISceneOptions ) {
         super( options );
 
-        const longPressButton = new LongPressButton( {
-                                                         interactive: true,
-                                                         longPress: {
-                                                             enabled: true,
-                                                             interval: 0.2,
-                                                             trigger: 1.0,
-                                                         },
-                                                         textures: {
-                                                             disable: 'button',
-                                                             hover: 'button-hover',
-                                                             normal: 'button-normal',
-                                                             press: 'button-down',
-                                                         },
-                                                         zooming: {
-                                                             enabled: true,
-                                                             scale: 0.95,
-                                                         },
-                                                     } );
+        const longPressOptions = {
+            interactive: true,
+            longPress: {
+                enabled: true,
+                interval: 0.2,
+                trigger: 1.0,
+            },
+            textures: {
+                disable: 'button',
+                hover: 'button-hover',
+                normal: 'button-normal',
+                press: 'button-down',
+            },
+            zooming: {
+                enabled: true,
+                scale: 0.95,
+            },
+        } as const;
+        const longPressButton = new LongPressButton( longPressOptions );
 
-        const checkBox = new CheckBox<Sprite>( {
-                                                   onCheckedChanged( box : CheckBox<Sprite>, checked : boolean ) : void {
-                                                       logger.info( checked, box.name );
-                                                   },
-                                                   interactive: true,
-                                                   textures: { normal: 'check-box' },
-                                                   zooming: {
-                                                       enabled: false,
-                                                       scale: 0.95,
-                                                   },
-                                                   checkedMark: Sprite.from( Texture.from( 'check-box-mark' ) ),
-                                               } );
+        const checkBoxOptions = {
+            onCheckedChanged( box : CheckBox<Sprite>, checked : boolean ) : void {
+                logger.info( checked, box.name );
+            },
+            interactive: true,
+            textures: { normal: 'check-box' },
+            zooming: {
+                enabled: false,
+                scale: 0.95,
+            },
+            checkedMark: Sprite.from( Texture.from( 'check-box-mark' ) ),
+        } as const;
+        const checkBox = new CheckBox<Sprite>( checkBoxOptions );
         checkBox.position.y = 120;
         checkBox.checkedMark.anchor.set( 0.5 );
 
-        const pro_bar = new ProgressBar( {
-                                             progress: 0.2,
-                                             background: 'bar-bg',
-                                             foreground: 'bar-fg',
-                                             // onProgressChanged( _bar, progress ) {
-                                             //     logger.info( 'bar progress', progress );
-                                             // },
-                                         } );
-        pro_bar.position.y = 150;
-        pro_bar.to( 1, 3 );
+        const lineBarOptions = {
+            progress: 0,
+            background: 'bar-bg',
+            foreground: 'bar-fg',
+        } as const;
+        const lineBar = new LineBar( lineBarOptions );
+        lineBar.position.y = 150;
+        lineBar.to( 1.0, 3 );
 
-        this.addChild( longPressButton, checkBox, pro_bar );
+        this.addChild( longPressButton, checkBox, lineBar );
     }
 }
 

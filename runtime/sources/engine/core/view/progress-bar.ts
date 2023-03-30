@@ -1,5 +1,5 @@
 import TWEEN, { Tween } from '@tweenjs/tween.js';
-import { Rectangle, Sprite } from 'pixi.js';
+import { Sprite } from 'pixi.js';
 import {
     changeTexture, math, pickKeysFromObject, responsive, Signals,
 } from '../util';
@@ -41,12 +41,12 @@ export class ProgressBar extends View {
         this._foreground.anchor.set( 0, 0.5 );
         this.addChild( this._background, this._foreground );
 
-        this._options = pickKeysFromObject( options, [
+        this._preserveKeys( options, [
             'background', 'foreground', 'progress',
-        ] ) as IProgressBarBaseOptions;
+        ] );
     }
 
-    private _progress : number;
+    protected _progress : number;
 
     get progress() {
         return this._progress;
@@ -77,22 +77,15 @@ export class ProgressBar extends View {
             .start();
     }
 
-    protected _onProgressChanged() {
-        // TODO: line-bar
-        const {
-            width,
-            height,
-        } = this._foreground.texture.baseTexture;
-        this._foreground.texture.frame = new Rectangle( 0, 0, width * this._progress, height );
+    protected _preserveKeys<T extends IProgressBarOptions>( options : T, keys : string[] ) {
+        Object.assign( this._options, pickKeysFromObject( options, keys ) );
     }
+
+    protected _onProgressChanged() {}
 
     protected _onTextureLoaded() {
         this.pivot.set( this._background.width * 0.5, this._background.height * 0.5 );
         this._background.position.set( 0 );
-        // TODO: line-bar
-        const texture = this._foreground.texture;
-        texture.frame.width = texture.baseTexture.width * this._progress;
-        this._foreground.position.x = ( this._background.width - texture.baseTexture.width ) * 0.5;
     }
 
     protected override _onInit() {

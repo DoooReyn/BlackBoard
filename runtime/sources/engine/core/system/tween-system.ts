@@ -2,6 +2,9 @@ import * as TWEEN from '@tweenjs/tween.js';
 import { Engine } from '../engine';
 import { ESystemPriority, System } from './system';
 
+/**
+ * TODO: Adding support for the 'Groups'
+ */
 export class TweenSystem extends System {
 
     /**
@@ -33,6 +36,7 @@ export class TweenSystem extends System {
     protected _onPaused( _engine : Engine ) : void {
         TWEEN.getAll().forEach( v => {
             if ( v.isPlaying() ) {
+                // Only pause the ones that are playing
                 this._pauses = this._pauses || [];
                 this._pauses.push( v );
                 v.pause();
