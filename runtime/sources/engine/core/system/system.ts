@@ -1,7 +1,7 @@
 import type { Engine } from '../engine';
 
 export enum ESystemPriority {
-    Input, News, Stats, Director
+    Input, News, Stats, Tween, Director
 }
 
 /**
