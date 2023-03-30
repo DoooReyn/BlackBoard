@@ -29,5 +29,7 @@ export const SCENE1_LOAD_ITEMS : ILoadingItems = {
         [ 'video', 'video.mp4' ],
         [ 'tilemap', 'tilemaps/atlas.json' ],
         [ 'eggHead', 'eggHead.png' ],
+        [ 'check-box-mark', 'pixel.png' ],
+        [ 'check-box', 'circle.png' ],
     ],
 };

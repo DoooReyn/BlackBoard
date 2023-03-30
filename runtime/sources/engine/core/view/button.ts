@@ -1,4 +1,4 @@
-import { FederatedPointerEvent, Sprite } from 'pixi.js';
+import { FederatedPointerEvent, Sprite, Texture } from 'pixi.js';
 import { changeTexture, pickKeysFromObject, prefills, Signals } from '../util';
 import { View } from './view';
 
@@ -75,10 +75,6 @@ export class Button extends View {
 
         this._background = new Sprite();
         this.addChild( this._background );
-
-        changeTexture( this._background, options.textures.normal, ( texture ) => {
-            this.pivot.set( texture.width * 0.5, texture.height * 0.5 );
-        } );
     }
 
     protected _state : TButtonState;
@@ -111,11 +107,17 @@ export class Button extends View {
         }
     }
 
+    protected _onTextureLoaded( texture : Texture ) {
+        this.pivot.set( texture.width * 0.5, texture.height * 0.5 );
+    }
+
     protected override _onInit() {
         super._onInit();
 
+        changeTexture( this._background, this._options.textures.normal, this._onTextureLoaded.bind( this ) );
+
         this._isDown = false;
-        this.state = 'normal';
+        this._state = 'normal';
         this.interactive = this._options.interactive;
 
         this.on( 'pointerdown', this._onPointerDown, this );
