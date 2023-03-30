@@ -1,4 +1,4 @@
-import { FederatedPointerEvent, Sprite, Ticker } from 'pixi.js';
+import { FederatedPointerEvent, Sprite } from 'pixi.js';
 import { changeTexture, pickKeysFromObject, prefills, Signals } from '../util';
 import { View } from './view';
 
@@ -12,9 +12,6 @@ export interface IButtonBaseOptions {
     zooming? : {
         enabled : boolean; scale : number;
     },
-    longPress? : {
-        enabled : boolean; interval : number; trigger : number;
-    };
 }
 
 export interface IButtonTriggerOptions {
@@ -24,9 +21,6 @@ export interface IButtonTriggerOptions {
     onPressTap? : TButtonTrigger;
     onHoverIn? : TButtonTrigger;
     onHoverOut? : TButtonTrigger;
-    onLongPressDown? : TButtonTrigger;
-    onLongPressUp? : TButtonTrigger;
-    onLongPressLeave? : TButtonTrigger;
 }
 
 export interface IButtonOptions extends IButtonBaseOptions,
@@ -41,16 +35,10 @@ export class Button extends View {
     public onPressTap : Signals<TButtonTrigger>;
     public onHoverIn : Signals<TButtonTrigger>;
     public onHoverOut : Signals<TButtonTrigger>;
-    public onLongPressDown : Signals<TButtonTrigger>;
-    public onLongPressUp : Signals<TButtonTrigger>;
-    public onLongPressLeave : Signals<TButtonTrigger>;
 
     protected _background : Sprite;
     protected _options : IButtonBaseOptions;
     protected _isDown : boolean;
-    protected _isLongPressed : boolean;
-    protected _longPressStartTime : number;
-    protected _longTicker : Ticker;
 
     public constructor( options : IButtonOptions ) {
         super();
@@ -60,22 +48,12 @@ export class Button extends View {
             scale: 0.95,
         };
 
-        options.longPress = options.longPress || {
-            enabled: false,
-            trigger: 1.0,
-            interval: 0.1,
-        };
-
         prefills( options, [
             [ 'interactive', true ], [ 'state', 'normal' ],
         ] );
 
         prefills( options.zooming, [
             [ 'enabled', true ], [ 'scale', 0.95 ], [ 'interval', 0.03 ],
-        ] );
-
-        prefills( options.longPress, [
-            [ 'enabled', true ], [ 'trigger', 1.0 ], [ 'interval', 0.1 ],
         ] );
 
         this._options = pickKeysFromObject( options, [
@@ -88,18 +66,12 @@ export class Button extends View {
         this.onPressTap = new Signals<TButtonTrigger>();
         this.onHoverIn = new Signals<TButtonTrigger>();
         this.onHoverOut = new Signals<TButtonTrigger>();
-        this.onLongPressDown = new Signals<TButtonTrigger>();
-        this.onLongPressUp = new Signals<TButtonTrigger>();
-        this.onLongPressLeave = new Signals<TButtonTrigger>();
         options.onPressDown && this.onPressDown.connect( options.onPressDown );
         options.onPressUp && this.onPressUp.connect( options.onPressUp );
         options.onPressLeave && this.onPressLeave.connect( options.onPressLeave );
         options.onPressTap && this.onPressTap.connect( options.onPressTap );
         options.onHoverIn && this.onHoverIn.connect( options.onHoverIn );
         options.onHoverOut && this.onHoverOut.connect( options.onHoverOut );
-        options.onLongPressDown && this.onLongPressDown.connect( options.onLongPressDown );
-        options.onLongPressUp && this.onLongPressUp.connect( options.onLongPressUp );
-        options.onLongPressLeave && this.onLongPressLeave.connect( options.onLongPressLeave );
 
         this._background = new Sprite();
         this.addChild( this._background );
@@ -107,9 +79,6 @@ export class Button extends View {
             this.pivot.set( texture.width * 0.5, texture.height * 0.5 );
         } );
 
-        this._longTicker = new Ticker();
-        this._longTicker.autoStart = false;
-        this._longTicker.add( this._longPressCounter, this );
     }
 
     protected _state : TButtonState;
@@ -129,14 +98,6 @@ export class Button extends View {
         this._options.zooming.enabled = e;
     }
 
-    public get longPressEnabled() {
-        return this._options.longPress.enabled;
-    }
-
-    public set longPressEnabled( e : boolean ) {
-        this._options.longPress.enabled = e;
-    }
-
     override set interactive( en : boolean ) {
         super.interactive = en;
         this.state = en ? 'normal' : 'disable';
@@ -153,7 +114,6 @@ export class Button extends View {
         super._onInit();
 
         this._isDown = false;
-        this._isLongPressed = false;
         this.state = 'normal';
         this.interactive = this._options.interactive;
 
@@ -175,43 +135,19 @@ export class Button extends View {
         this.off( 'pointerout', this._onPointerOut, this );
         this.off( 'pointertap', this._onPointerTap, this );
 
-        this._longTicker.stop();
     }
 
     protected _onPointerDown( e : FederatedPointerEvent ) {
         this.state = 'press';
         this._isDown = true;
-        this._isLongPressed = false;
         this._zoomIn();
         this.onPressDown.emit( this, e );
 
-        if ( this._options.longPress.enabled ) {
-            this._longPressStartTime = 0;
-            this._longTicker.start();
-        }
-    }
-
-    protected _longPressCounter( _dt : number ) {
-        this._longPressStartTime += this._longTicker.deltaMS / 1000;
-        if ( this._isLongPressed ) {
-            if ( this._longPressStartTime >= this._options.longPress.interval ) {
-                this._longPressStartTime = 0;
-                this.onLongPressDown.emit( this );
-            }
-        } else {
-            if ( this._longPressStartTime >= this._options.longPress.trigger ) {
-                this._longPressStartTime = 0;
-                this._isLongPressed = true;
-                this.onLongPressDown.emit( this );
-            }
-        }
     }
 
     protected _onPointerUp( e : FederatedPointerEvent ) {
         this.state = 'normal';
         this._isDown = false;
-        this._isLongPressed = false;
-        this._longTicker.stop();
         this._zoomOut();
         this.onPressUp.emit( this, e );
     }
@@ -227,8 +163,6 @@ export class Button extends View {
         if ( !this._isDown ) {
             this.state = 'normal';
             this._isDown = false;
-            this._isLongPressed = false;
-            this._longTicker.stop();
             this.onHoverOut.emit( this, e );
         }
     }
@@ -236,11 +170,8 @@ export class Button extends View {
     protected _onPointerCancel( e : FederatedPointerEvent ) {
         this.state = 'normal';
         this._isDown = false;
-        this._isLongPressed = false;
-        this._longTicker.stop();
         this._zoomOut();
         this.onPressLeave.emit( this, e );
-        this.onLongPressLeave.emit( this, e );
     }
 
     protected _onPointerTap( e : FederatedPointerEvent ) {

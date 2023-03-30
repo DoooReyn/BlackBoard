@@ -1,6 +1,6 @@
 import {
-    Button, Director, Engine, ISceneOptions, logger, NativeEventSystem, Scene,
-    System, TStackOperation,
+    Director, Engine, ISceneOptions, logger, LongPressButton, NativeEventSystem,
+    Scene, System, TStackOperation,
 } from '../../engine';
 import { SCENE1_LOAD_ITEMS } from '../config/scene1.loaditems.config';
 
@@ -9,24 +9,24 @@ class TestScene extends Scene {
     protected constructor( options : ISceneOptions ) {
         super( options );
 
-        const button = new Button( {
-                                       interactive: true,
-                                       longPress: {
-                                           enabled: true,
-                                           interval: 0.2,
-                                           trigger: 1.0,
-                                       },
-                                       textures: {
-                                           disable: 'button',
-                                           hover: 'button-hover',
-                                           normal: 'button-normal',
-                                           press: 'button-down',
-                                       },
-                                       zooming: {
-                                           enabled: true,
-                                           scale: 0.95,
-                                       },
-                                   } );
+        const button = new LongPressButton( {
+                                                interactive: true,
+                                                longPress: {
+                                                    enabled: true,
+                                                    interval: 0.2,
+                                                    trigger: 1.0,
+                                                },
+                                                textures: {
+                                                    disable: 'button',
+                                                    hover: 'button-hover',
+                                                    normal: 'button-normal',
+                                                    press: 'button-down',
+                                                },
+                                                zooming: {
+                                                    enabled: true,
+                                                    scale: 0.95,
+                                                },
+                                            } );
         this.addChild( button );
     }
 }
