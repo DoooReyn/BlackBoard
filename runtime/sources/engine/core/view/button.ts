@@ -7,7 +7,7 @@ export type TButtonTrigger = ( button : Button, event? : FederatedPointerEvent )
 export interface IButtonBaseOptions {
     interactive? : boolean;
     textures : {
-        normal : string; press : string; hover : string; disable : string;
+        normal : string; press? : string; hover? : string; disable? : string;
     },
     zooming? : {
         enabled : boolean; scale : number;
@@ -75,10 +75,10 @@ export class Button extends View {
 
         this._background = new Sprite();
         this.addChild( this._background );
+
         changeTexture( this._background, options.textures.normal, ( texture ) => {
             this.pivot.set( texture.width * 0.5, texture.height * 0.5 );
         } );
-
     }
 
     protected _state : TButtonState;
@@ -86,7 +86,8 @@ export class Button extends View {
     public set state( s : TButtonState ) {
         if ( this._state !== s ) {
             this._state = s;
-            changeTexture( this._background, this._options.textures[ s ] );
+            const source = this._options.textures[ s ] || this._options.textures.normal;
+            changeTexture( this._background, source );
         }
     }
 
@@ -142,7 +143,6 @@ export class Button extends View {
         this._isDown = true;
         this._zoomIn();
         this.onPressDown.emit( this, e );
-
     }
 
     protected _onPointerUp( e : FederatedPointerEvent ) {
