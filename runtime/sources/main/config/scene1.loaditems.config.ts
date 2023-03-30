@@ -19,9 +19,9 @@ export const SCENE1_LOAD_ITEMS : ILoadingItems = {
             ],
         ], [
             'Button', [
-                // [ 'button-normal', 'button.png' ],
-                // [ 'button-down', 'button_down.png' ],
-                // [ 'button-hover', 'button_over.png' ],
+                [ 'button-normal', 'button.png' ],
+                [ 'button-down', 'button_down.png' ],
+                [ 'button-hover', 'button_over.png' ],
             ],
         ],
     ],

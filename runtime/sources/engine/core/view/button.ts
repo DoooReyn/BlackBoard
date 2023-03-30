@@ -5,13 +5,12 @@ import { View } from './view';
 export type TButtonTrigger = ( button : Button, event? : FederatedPointerEvent ) => void;
 
 export interface IButtonBaseOptions {
-    state? : TButtonState;
     interactive? : boolean;
     textures : {
         normal : string; press : string; hover : string; disable : string;
     },
     zooming? : {
-        enabled : boolean; scale : number; interval : number;
+        enabled : boolean; scale : number;
     },
     longPress? : {
         enabled : boolean; interval : number; trigger : number;
@@ -59,7 +58,6 @@ export class Button extends View {
         options.zooming = options.zooming || {
             enabled: true,
             scale: 0.95,
-            interval: 0.03,
         };
 
         options.longPress = options.longPress || {
@@ -105,7 +103,7 @@ export class Button extends View {
 
         this._background = new Sprite();
         this.addChild( this._background );
-        changeTexture( this._background, options.textures[ options.state ], ( texture ) => {
+        changeTexture( this._background, options.textures.normal, ( texture ) => {
             this.pivot.set( texture.width * 0.5, texture.height * 0.5 );
         } );
 
@@ -117,8 +115,10 @@ export class Button extends View {
     protected _state : TButtonState;
 
     public set state( s : TButtonState ) {
-        this._state = s;
-        changeTexture( this._background, this._options.textures[ s ] );
+        if ( this._state !== s ) {
+            this._state = s;
+            changeTexture( this._background, this._options.textures[ s ] );
+        }
     }
 
     public get zoomEnabled() {
@@ -137,6 +137,11 @@ export class Button extends View {
         this._options.longPress.enabled = e;
     }
 
+    override set interactive( en : boolean ) {
+        super.interactive = en;
+        this.state = en ? 'normal' : 'disable';
+    }
+
     public loadTextures( textures : { normal? : string; press? : string; hover? : string; disable? : string; } ) {
         for ( let key in textures ) {
             // @ts-ignore
@@ -149,7 +154,7 @@ export class Button extends View {
 
         this._isDown = false;
         this._isLongPressed = false;
-        this.state = this._options.state;
+        this.state = 'normal';
         this.interactive = this._options.interactive;
 
         this.on( 'pointerdown', this._onPointerDown, this );
