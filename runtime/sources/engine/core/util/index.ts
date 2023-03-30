@@ -16,3 +16,4 @@ export * from './time-counter';
 export * from './sec-update-value';
 export * from './math';
 export * from './loading';
+export * from './responsive';

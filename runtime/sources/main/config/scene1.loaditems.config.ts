@@ -17,6 +17,12 @@ export const SCENE1_LOAD_ITEMS : ILoadingItems = {
                 [ 'woff', 'webfont-loader/Dotrice-Regular.woff' ],
                 [ 'woff2', 'webfont-loader/Crosterian.woff2' ],
             ],
+        ], [
+            'Button', [
+                // [ 'button-normal', 'button.png' ],
+                // [ 'button-down', 'button_down.png' ],
+                // [ 'button-hover', 'button_over.png' ],
+            ],
         ],
     ],
     scattered: [

@@ -5,6 +5,8 @@
  * @param {any} ctx
  * @returns {any | undefined}
  */
+import { Sprite, Texture } from 'pixi.js';
+
 export function progressive<T extends any, K extends any>( fallbacks : K[], execute : ( arg : K ) => T | undefined, ctx : any ) : T | undefined {
     let result = undefined;
     for ( let i = 0; i < fallbacks.length; i++ ) {
@@ -85,5 +87,32 @@ export function removeInvalidOfMap( map : Record<string, any> ) {
             delete map[ k ];
         }
     } );
-    return { passes: map, fails };
+    return {
+        passes: map,
+        fails,
+    };
+}
+
+export function pickKeysFromObject( o : Record<string, any>, keys : string[] ) {
+    let r : Record<string, any> = Object.create( null );
+    keys.forEach( k => {
+        const v = o[ k ];
+        if ( v !== undefined ) {
+            r[ k ] = clone( v );
+        }
+    } );
+    return r;
+}
+
+export function changeTexture( sprite : Sprite, source : string, fn? : ( texture : Texture ) => void ) {
+    const texture = Texture.from( source );
+    if ( texture.width === 1 && texture.height === 1 ) {
+        texture.baseTexture.once( 'loaded', () => {
+            sprite.texture = texture;
+            fn && fn.call( null, texture );
+        } );
+    } else {
+        sprite.texture = texture;
+        fn && fn.call( null, texture );
+    }
 }

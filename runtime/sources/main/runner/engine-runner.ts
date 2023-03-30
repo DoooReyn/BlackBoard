@@ -1,7 +1,6 @@
-import { Sprite } from 'pixi.js';
 import {
-    Director, Engine, ISceneOptions, logger, NativeEventSystem, Scene, System,
-    TStackOperation,
+    Button, Director, Engine, ISceneOptions, logger, NativeEventSystem, Scene,
+    System, TStackOperation,
 } from '../../engine';
 import { SCENE1_LOAD_ITEMS } from '../config/scene1.loaditems.config';
 
@@ -10,14 +9,31 @@ class TestScene extends Scene {
     protected constructor( options : ISceneOptions ) {
         super( options );
 
-        const flowerTop = Sprite.from( 'Scene1-png' );
-        const eggHead = Sprite.from( 'eggHead' );
-        const distance = ( flowerTop.width + eggHead.width ) * 0.25;
-        flowerTop.position.set( -distance, 0 );
-        eggHead.position.set( distance, 0 );
-        flowerTop.anchor.set( 0.5 );
-        eggHead.anchor.set( 0.5 );
-        this.addChild( eggHead, flowerTop );
+        const button = new Button( {
+                                       interactive: true,
+                                       longPress: {
+                                           enabled: true,
+                                           interval: 0.25,
+                                           trigger: 1.5,
+                                       },
+                                       state: 'normal',
+                                       textures: {
+                                           // disable: 'button',
+                                           // hover: 'button-hover',
+                                           // normal: 'button-normal',
+                                           // press: 'button-down',
+                                           disable: '/asset/button.png',
+                                           hover: '/asset/button_over.png',
+                                           normal: '/asset/button.png',
+                                           press: '/asset/button_down.png',
+                                       },
+                                       zooming: {
+                                           enabled: false,
+                                           interval: 0,
+                                           scale: 0.95,
+                                       },
+                                   } );
+        this.addChild( button );
     }
 }
 
