@@ -3,6 +3,7 @@ import {
     CheckBox, Director, Engine, ISceneOptions, logger, LongPressButton,
     NativeEventSystem, Scene, System, TStackOperation,
 } from '../../engine';
+import { ProgressBar } from '../../engine/core/view/progress-bar';
 import { SCENE1_LOAD_ITEMS } from '../config/scene1.loaditems.config';
 
 class TestScene extends Scene {
@@ -30,21 +31,32 @@ class TestScene extends Scene {
                                                      } );
 
         const checkBox = new CheckBox<Sprite>( {
-                                           onCheckedChanged( box : CheckBox<Sprite>, checked : boolean ) : void {
-                                               logger.info( checked, box.name );
-                                           },
-                                           interactive: true,
-                                           textures: { normal: 'check-box' },
-                                           zooming: {
-                                               enabled: false,
-                                               scale: 0.95,
-                                           },
-                                           checkedMark: Sprite.from( Texture.from( 'check-box-mark' ) ),
-                                       } );
+                                                   onCheckedChanged( box : CheckBox<Sprite>, checked : boolean ) : void {
+                                                       logger.info( checked, box.name );
+                                                   },
+                                                   interactive: true,
+                                                   textures: { normal: 'check-box' },
+                                                   zooming: {
+                                                       enabled: false,
+                                                       scale: 0.95,
+                                                   },
+                                                   checkedMark: Sprite.from( Texture.from( 'check-box-mark' ) ),
+                                               } );
         checkBox.position.y = 120;
         checkBox.checkedMark.anchor.set( 0.5 );
 
-        this.addChild( longPressButton, checkBox );
+        const pro_bar = new ProgressBar( {
+                                             progress: 0.2,
+                                             background: 'bar-bg',
+                                             foreground: 'bar-fg',
+                                             // onProgressChanged( _bar, progress ) {
+                                             //     logger.info( 'bar progress', progress );
+                                             // },
+                                         } );
+        pro_bar.position.y = 150;
+        pro_bar.to( 1, 3 );
+
+        this.addChild( longPressButton, checkBox, pro_bar );
     }
 }
 

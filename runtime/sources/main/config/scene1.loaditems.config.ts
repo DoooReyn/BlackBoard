@@ -31,5 +31,7 @@ export const SCENE1_LOAD_ITEMS : ILoadingItems = {
         [ 'eggHead', 'eggHead.png' ],
         [ 'check-box-mark', 'pixel.png' ],
         [ 'check-box', 'circle.png' ],
+        [ 'bar-fg', 'bar4.png' ],
+        [ 'bar-bg', 'barbg4.png' ],
     ],
 };
