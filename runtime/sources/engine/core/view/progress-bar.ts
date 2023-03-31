@@ -24,7 +24,7 @@ export class ProgressBar extends View {
     public onProgressChanged : Signals<TProgressBarTrigger>;
     protected _background : Sprite;
     protected _foreground : Sprite;
-    protected _options : IProgressBarBaseOptions;
+    protected _options : Record<string, any>;
     protected _tween : Tween<{ progress : number; }>;
 
     constructor( options : IProgressBarOptions ) {
@@ -37,8 +37,8 @@ export class ProgressBar extends View {
 
         this._background = new Sprite();
         this._foreground = new Sprite();
-        this._background.anchor.set( 0, 0.5 );
-        this._foreground.anchor.set( 0, 0.5 );
+        this._background.anchor.set( 0 );
+        this._foreground.anchor.set( 0 );
         this.addChild( this._background, this._foreground );
 
         this._preserveKeys( options, [
@@ -77,8 +77,8 @@ export class ProgressBar extends View {
             .start();
     }
 
-    protected _preserveKeys<T extends IProgressBarOptions>( options : T, keys : string[] ) {
-        Object.assign( this._options, pickKeysFromObject( options, keys ) );
+    protected _preserveKeys( options : Record<string, any>, keys : string[] ) {
+        this._options = Object.assign( this._options || {}, pickKeysFromObject( options, keys ) );
     }
 
     protected _onProgressChanged() {}

@@ -1,7 +1,8 @@
 import { Sprite, Texture } from 'pixi.js';
 import {
-    CheckBox, Director, Engine, ISceneOptions, LineBar, logger, LongPressButton,
-    NativeEventSystem, Scene, System, TStackOperation,
+    CheckBox, Director, ELineBarDirection, ELineBarLayout, Engine,
+    ISceneOptions, LineBar, logger, LongPressButton, NativeEventSystem, Scene,
+    System, TStackOperation,
 } from '../../engine';
 import { SCENE1_LOAD_ITEMS } from '../config/scene1.loaditems.config';
 
@@ -50,6 +51,8 @@ class TestScene extends Scene {
             progress: 0,
             background: 'bar-bg',
             foreground: 'bar-fg',
+            direction: ELineBarDirection.Positive,
+            layout: ELineBarLayout.Horizontal
         } as const;
         const lineBar = new LineBar( lineBarOptions );
         lineBar.position.y = 150;

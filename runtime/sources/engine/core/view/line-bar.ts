@@ -43,6 +43,7 @@ export class LineBar extends ProgressBar {
 
     set layout( l : ELineBarLayout ) {
         this._options.layout = l;
+        this._changeTextureFrame();
     }
 
     get direction() {
@@ -51,26 +52,55 @@ export class LineBar extends ProgressBar {
 
     set direction( d : ELineBarDirection ) {
         this._options.direction = d;
+        this._changeTextureFrame();
     }
 
     protected override _onProgressChanged() {
         super._onProgressChanged();
-
-        const {
-            width,
-            height,
-        } = this._foreground.texture.baseTexture;
-        // TODO: Direction/Layout
-        this._foreground.texture.frame = new Rectangle( 0, 0, width * this._progress, height );
+        this._changeTextureFrame();
     }
 
     protected override _onTextureLoaded() {
         super._onTextureLoaded();
 
-        const texture = this._foreground.texture;
-        texture.frame.width = texture.baseTexture.width * this._progress;
-        this._foreground.position.x = ( this._background.width - texture.baseTexture.width ) * 0.5;
+        this._changeTextureFrame();
     }
 
-    protected override _options : ILineBarBaseOptions;
+    protected _changeTextureFrame() {
+        const {
+            width: fw,
+            height: fh,
+        } = this._foreground.texture.baseTexture;
+
+        const {
+            width: bw,
+            height: bh,
+        } = this._background.texture.baseTexture;
+
+        this._foreground.position.x = ( bw - fw ) * 0.5;
+        this._foreground.position.y = ( bh - fh ) * 0.5;
+
+        let frame = new Rectangle( 0, 0, 0, 0 );
+        if ( this.layout === ELineBarLayout.Horizontal ) {
+            frame.width = ( fw * this._progress ) | 0;
+            frame.height = fh;
+            if ( this.direction === ELineBarDirection.Negative ) {
+                this._foreground.anchor.set( 1, 0 );
+                this._foreground.x = ( bw + fw ) * 0.5;
+            } else {
+                this._foreground.anchor.set( 0, 0 );
+            }
+        } else {
+            frame.width = fw;
+            frame.height = ( fh * this._progress ) | 0;
+            if ( this.direction === ELineBarDirection.Negative ) {
+                this._foreground.anchor.set( 0, 1 );
+                this._foreground.y = ( bh + fh ) * 0.5;
+            } else {
+                this._foreground.anchor.set( 0, 0 );
+            }
+        }
+
+        this._foreground.texture.frame = frame;
+    }
 }
