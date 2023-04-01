@@ -134,6 +134,9 @@ export class Engine {
         this.root = this._app.stage;
         this.root.sortableChildren = true;
 
+        // pixi-inspector
+        options.debug && ((window as any).__PIXI_APP__ = this._app);
+
         // Initializing states for engine instance
         this._state = new State<TEngineStates>( 'primitive', [
             [
