@@ -52,11 +52,15 @@ class TestScene extends Scene {
             background: 'bar-bg',
             foreground: 'bar-fg',
             direction: ELineBarDirection.Positive,
-            layout: ELineBarLayout.Horizontal
+            layout: ELineBarLayout.Horizontal,
         } as const;
         const lineBar = new LineBar( lineBarOptions );
         lineBar.position.y = 150;
-        lineBar.to( 1.0, 3 );
+        lineBar.interactive = true;
+        lineBar.on( 'pointertap', () => {
+            lineBar.progress = 0;
+            lineBar.to( 1.0, 10 );
+        } );
 
         this.addChild( longPressButton, checkBox, lineBar );
     }

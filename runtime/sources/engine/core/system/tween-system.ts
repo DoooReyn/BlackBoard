@@ -6,16 +6,13 @@ import { ESystemPriority, System } from './system';
  * TODO: Adding support for the 'Groups'
  */
 export class TweenSystem extends System {
+    private _lastTime : number;
 
-    /**
-     * Because pausing 'tween' will remove it from the 'group'.
-     * And only it could resume itself.
-     * Therefore, it is necessary to keep them when the 'director' paused,
-     * and to resume them when the 'director' resumed.
-     * @type {Tween<any>[]}
-     * @private
-     */
-    private _pauses : TWEEN.Tween<any>[] = null;
+    protected constructor() {
+        super();
+
+        this._lastTime = TWEEN.now();
+    }
 
     private static _shared : TweenSystem = null;
 
@@ -33,29 +30,16 @@ export class TweenSystem extends System {
         TWEEN.removeAll();
     }
 
-    protected _onPaused( _engine : Engine ) : void {
-        TWEEN.getAll().forEach( v => {
-            if ( v.isPlaying() ) {
-                // Only pause the ones that are playing
-                this._pauses = this._pauses || [];
-                this._pauses.push( v );
-                v.pause();
-            }
-        } );
-    }
+    protected _onPaused( _engine : Engine ) : void {}
 
-    protected _onResumed( _engine : Engine ) : void {
-        if ( this._pauses && this._pauses.length > 0 ) {
-            this._pauses.forEach( v => v.resume() );
-            this._pauses = null;
-        }
-    }
+    protected _onResumed( _engine : Engine ) : void {}
 
     protected _onStarted( _engine : Engine ) : void {
     }
 
     public frameUpdate( _engine : Engine, _delta : number ) : void {
-        TWEEN.update();
+        this._lastTime += _engine.ticker.deltaMS;
+        TWEEN.update( this._lastTime );
     }
 
     public get priority() : number {

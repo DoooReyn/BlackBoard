@@ -60,6 +60,7 @@ export class ProgressBar extends View {
 
     stop() {
         if ( this._tween ) {
+            this._tween.stop();
             TWEEN.remove( this._tween );
             this._tween = null;
         }
